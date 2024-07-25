@@ -80,7 +80,7 @@ class CmsServiceProvider extends ServiceProvider
         $this->configure();
         $this->registerServices();
         $this->registerFunctions();
-        if (env('PUBLIC_PATH')) {
+        if (config('modules.public_path')) {
             $this->app->usePublicPath(base_path() . '/' . config('modules.public_path'));
         }
     }
@@ -90,21 +90,22 @@ class CmsServiceProvider extends ServiceProvider
         Carbon::setLocale(config('app.locale'));
         Carbon::setFallbackLocale(config('app.fallback_locale'));
         Config::set('auth.providers.users.model', 'Udiko\Cms\Models\User');
-        if (empty(Cache::get('option'))) {
-            recache_option();
-        }
-        if (!Cache::has('menu')) {
-            recache_menu();
-        }
-        if (!Cache::has('media')) {
-            recache_media();
-        }
-        if ((get_option('site_maintenance') && get_option('site_maintenance') == 'Y') || (!$this->app->environment('production') && env('APP_DEBUG')==true)) {
-            Config::set(['app.debug' => true]);
-        } else {
-            Config::set(['app.debug' => false]);
-        }
+
         if ($this->checkAllTables() && DB::connection()->getPDO()) {
+            if (empty(Cache::get('option'))) {
+                recache_option();
+            }
+            if (empty(Cache::has('menu'))) {
+                recache_menu();
+            }
+            if (empty(Cache::has('media'))) {
+                recache_media();
+            }
+            if ((get_option('site_maintenance') && get_option('site_maintenance') == 'Y') || (!$this->app->environment('production') && env('APP_DEBUG')==true)) {
+                Config::set(['app.debug' => true]);
+            } else {
+                Config::set(['app.debug' => false]);
+            }
             $this->app->bind('customRateLimiter', function ($app) {
                 return new RateLimiter($app['cache']->driver('file'), $app['request'], 'login.' . $this->getRateLimiterKey($app['request']), get_option('time_limit_login') ?? 3, get_option('limit_duration') ?? 60);
             });
