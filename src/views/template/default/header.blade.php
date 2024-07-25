@@ -2,9 +2,8 @@
 <html lang="en">
 
 <head>
-    {{ init_header() }}
-    <link
-        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    {{ init_meta_header() }}
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
         rel="stylesheet">
 
     <!-- Vendor CSS Files -->
@@ -25,30 +24,30 @@
         <div class="container d-flex align-items-center justify-content-between">
 
             <div class="logo">
-                <h1 class="text-light"><a href="index.html">Serenity</a></h1>
+                {{-- <h1 class="text-light"><a href="index.html">Serenity</a></h1> --}}
                 <!-- Uncomment below if you prefer to use an image logo -->
-                <!-- <a href="index.html"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
+                 <a href="{{ url('/') }}"><img src="{{ url(get_option('logo')) }}" alt="" class="img-fluid"></a>
             </div>
 
             <nav id="navbar" class="navbar">
                 <ul>
                     @foreach (get_menu('header') as $row)
-                        @if (get_menu('header', $row->id)->count() > 0)
-                            <li class="dropdown"><a href="#"><span>{{ $row->name }}</span> <i
+                        @if (get_menu('header', $row->menu_id)->count() > 0)
+                            <li class="dropdown"><a href="#"><span>{{ $row->menu_name }}</span> <i
                                         class="bi bi-chevron-down"></i></a>
                                 <ul>
-                                    @foreach (get_menu('header', $row->id) as $row2)
-                                        @if (get_menu('header', $row2->id)->count() > 0)
-                                        <li class="dropdown"><a href="#"><span>{{ $row2->name }}</span>
+                                    @foreach (get_menu('header', $row->menu_id) as $row2)
+                                        @if (get_menu('header', $row2->menu_id)->count() > 0)
+                                        <li class="dropdown"><a href="#"><span>{{ $row2->menu_name }}</span>
                                           <i class="bi bi-chevron-right"></i></a>
                                             <ul>
-                                            @foreach (get_menu('header', $row2->id) as $row3)
-                                            <li><a href="about.html">{{ $row3->name }}</a></li>
+                                            @foreach (get_menu('header', $row2->menu_id) as $row3)
+                                            <li><a href="about.html">{{ $row3->menu_name }}</a></li>
                                             @endforeach
                                             </ul>
                                             </li>
                                             @else
-                                                <li><a href="about.html">{{ $row2->name }}</a></li>
+                                                <li><a href="about.html">{{ $row2->menu_name }}</a></li>
                                         @endif
                                     @endforeach
                                     {{-- <li class="dropdown"><a href="#"><span>Deep Drop Down</span> <i class="bi bi-chevron-right"></i></a>

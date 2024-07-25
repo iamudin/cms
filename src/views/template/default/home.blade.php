@@ -1,7 +1,7 @@
-<section id="hero">
+<section id="hero" style="background-image:url('{{ get_banner('slider') }}')">
     <div class="hero-container" data-aos="fade-up">
-      <h1>Welcome to Serenity</h1>
-      <h2>We are team of talented designers making websites with Bootstrap</h2>
+      <h1>Welcome to {{ get_option('site_title') }}</h1>
+      <h2>{!! Illuminate\Foundation\Inspiring::quote() !!}</h2>
       <a href="#about" class="btn-get-started scrollto">Get Started</a>
     </div>
   </section><!-- End Hero -->
@@ -19,7 +19,7 @@
               <div class="col-lg-3 col-md-5 col-6 d-md-flex align-items-md-stretch">
                 <div class="count-box py-5">
                   <i class="bi bi-emoji-smile"></i>
-                  <span data-purecounter-start="0" data-purecounter-end="{{get_post()->count('berita')}}" class="purecounter">{{get_post()->count('berita')}}</span>
+                  <span data-purecounter-start="0" data-purecounter-end="{{query()->count('berita')}}" class="purecounter">{{query()->count('berita')}}</span>
                   <p>Berita</p>
                 </div>
               </div>
@@ -55,7 +55,7 @@
         <div class="row">
 
           <div class="col-lg-6 video-box align-self-baseline position-relative">
-            <img src="assets/img/about.jpg" class="img-fluid" alt="">
+            <img src="" class="img-fluid" alt="">
             <a href="https://www.youtube.com/watch?v=jDDaplaOz7Q" class="glightbox play-btn mb-4"></a>
           </div>
 
@@ -66,10 +66,9 @@
               magna aliqua.
             </p>
             <ul>
-              <li><i class="bx bx-check-double"></i> Ullamco laboris nisi ut aliquip ex ea commodo consequat.</li>
-              <li><i class="bx bx-check-double"></i> Duis aute irure dolor in reprehenderit in voluptate velit.</li>
-              <li><i class="bx bx-check-double"></i> Voluptate repellendus pariatur reprehenderit corporis sint.</li>
-              <li><i class="bx bx-check-double"></i> Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate trideta storacalaperda mastiro dolore eu fugiat nulla pariatur.</li>
+             @foreach(query()->index_by_category('agenda','pemasukan') as $k=> $row)
+             <li><i class="bx bx-check-double"></i>{{ $k+1}} {{ $row->title }}</li>
+             @endforeach
             </ul>
             <p>
               Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate

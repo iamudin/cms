@@ -14,9 +14,9 @@
           <li><a href="index.html">Home</a></li>
           <li>Blog</li>
         </ol>
+
       </div>
     </section><!-- End Breadcrumbs -->
-
     <!-- ======= Blog Section ======= -->
     <section id="blog" class="blog">
       <div class="container" data-aos="fade-up">
