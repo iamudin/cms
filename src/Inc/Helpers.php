@@ -100,12 +100,7 @@ if (!function_exists('size_as_kb')) {
         return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }
-if (!function_exists('ping')) {
-    function ping()
-    {
-        return new \Udiko\Cms\Inc\Ping();
-    }
-}
+
 
 if (!function_exists('domain')) {
     function domain($attr)
@@ -1066,38 +1061,6 @@ if (!function_exists('get_banner')) {
     }
 }
 
-
-if (!function_exists('time_ago')) {
-    function time_ago($datetime, $full = false)
-    {
-        $now = new DateTime;
-        $ago = new DateTime($datetime);
-        $diff = $now->diff($ago);
-
-        $diff->w = floor($diff->d / 7);
-        $diff->d -= $diff->w * 7;
-
-        $string = array(
-            'y' => 'tahun',
-            'm' => 'bulan',
-            'w' => 'minggu',
-            'd' => 'hari',
-            'h' => 'jam',
-            'i' => 'menit',
-            's' => 'detik',
-        );
-        foreach ($string as $k => &$v) {
-            if ($diff->$k) {
-                $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? '' : '');
-            } else {
-                unset($string[$k]);
-            }
-        }
-
-        if (!$full) $string = array_slice($string, 0, 1);
-        return $string ? implode(', ', $string) . ' yang lalu' : 'Baru saja';
-    }
-}
 if (!function_exists('get_ip_info')) {
     function get_ip_info()
     {
