@@ -513,7 +513,5 @@ return [
         'detail_visited'=> false,
         'data'=> null,
         'domain'=>null,
-        'admin_path'=>env('ADMIN_PATH','panel'),
         'public_path'=>env('PUBLIC_PATH',null),
-        'template'=>env('TEMPLATE_PATH','default')
 ];

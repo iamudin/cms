@@ -58,7 +58,7 @@ Route::post('media/imagesummernoteupload', [MediaController::class, 'uploadImage
      Route::controller(PanelController::class)->group(function () {
          Route::get('dashboard', 'index')->name('panel.dashboard');
          Route::post('dashboard', 'visitor')->name('visitor.data');
-         Route::match(['get', 'post'], 'setting', 'setting')->name('setting');
+         Route::match(['get', 'post'], '/setting', 'setting')->name('setting');
      });
      Route::controller(UserController::class)->group(function ()  {
          Route::get('role', 'roleIndex')->name('role');
@@ -97,7 +97,7 @@ Route::post('media/imagesummernoteupload', [MediaController::class, 'uploadImage
          Route::put('comments/{comment}/update', 'update')->name('comment.update');
          Route::delete('comments/{comment}/delete', 'destroy')->name('comment.destroy');
      });
-     
+
      Route::get('/',function(){
         return to_route('login');
      });

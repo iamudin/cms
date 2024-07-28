@@ -86,12 +86,10 @@ class CmsServiceProvider extends ServiceProvider
     }
     protected function cmsHandler()
     {
-        $this->loadTemplateConfig();
         Carbon::setLocale(config('app.locale'));
         Carbon::setFallbackLocale(config('app.fallback_locale'));
         Config::set('auth.providers.users.model', 'Udiko\Cms\Models\User');
-
-        if ($this->checkAllTables() && DB::connection()->getPDO()) {
+        if (DB::connection()->getPDO() && $this->checkAllTables()) {
             if (empty(Cache::get('option'))) {
                 recache_option();
             }
@@ -115,6 +113,8 @@ class CmsServiceProvider extends ServiceProvider
             if (get_module('domain') && $domain = query()->detail_by_title('domain', request()->getHttpHost())) {
                 Config::set('modules.domain', $domain);
             }
+            $this->loadTemplateConfig();
+
         }
         if ($this->app->environment('production')) {
             URL::forceScheme('https');

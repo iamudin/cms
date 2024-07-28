@@ -354,7 +354,8 @@ if (!function_exists('get_option')) {
 if (!function_exists('admin_path')) {
     function admin_path()
     {
-        return config('modules.admin_path');
+     return get_option('admin_path') ?? 'admin';
+        ;
     }
 }
 
@@ -641,7 +642,7 @@ if (!function_exists('blade_path')) {
 if (!function_exists('template')) {
     function template()
     {
-        return config('modules.template');
+        return get_option('template') ?? 'default';
     }
 }
 if (!function_exists('get_sidebar')) {
@@ -709,7 +710,7 @@ if (!function_exists('set_header_seo')) {
             'description' => !empty($data->description) ? $data->description : (strlen(strip_tags($data->content)) == 0 ? 'Lihat ' . get_module($data->type)->title . ' ' . $data->title : str(strip_tags($data->content))->limit(350)),
             'keywords' => !empty($data->keyword) ? $data->keyword : $data->site_keyword,
             'title' => $data->title,
-            'thumbnail' => $data->media ? url($data->thumbnail) : url(get_option('preview') ?? 'no-image.png'),
+            'thumbnail' => $data->media ? url($data->thumbnail) : url(get_option('preview') ?? noimage()),
             'url' => (!empty($data->url)) ? url($data->url) : url('/'),
         );
     }
@@ -753,7 +754,7 @@ if (!function_exists('init_meta_header')) {
                 'description' => $pn ? 'Lihat ' . $pn . ' di ' . $site_title : $site_meta_description,
                 'title' => $pn ? $pn : (!request()->is('/') ? 'Halaman Tidak Ditemukan' : $site_title . ($site_desc ? ' - ' . $site_desc : '')),
                 'keywords' => $site_meta_keyword,
-                'thumbnail' => url(get_option('preview') ?? 'no-image.png'),
+                'thumbnail' => url(get_option('preview') ?? noimage()),
                 'url' => url()->full(),
             ];
 

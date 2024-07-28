@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 use Udiko\Cms\Models\Option;
 use Udiko\Cms\Models\Visitor;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Artisan;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Support\Facades\Redirect;
 
 class PanelController extends Controller implements HasMiddleware
 {
@@ -176,6 +178,17 @@ class PanelController extends Controller implements HasMiddleware
                    $value = $request->$key;
                    $option->updateOrCreate(['name' => $key],['value' => strip_tags($value), 'autoload' => 1]);
 
+            }
+            if($val = $request->admin_path){
+                if(in_array($val,['admin','login','adminpanel','webadmin','masuk','sipanel'])){
+                    return back()->with('danger','Login path dengan kata kunci "'.$val.'" tidak diizinkan');
+                }
+                $option->updateOrCreate(['name'=>'admin_path'],['value'=>$val,'autoload'=>1]);
+                if($val!=get_option('admin_path')){
+                    recache_option();
+                    Artisan::call('route:cache');
+                    return to_route('setting')->with('success', 'Berhasil disimpan');
+                }
             }
             recache_option();
             return  back()->with('success', 'Berhasil disimpan');
