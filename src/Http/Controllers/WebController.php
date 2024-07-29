@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Udiko\Cms\Models\Category;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Artisan;
 use Udiko\Cms\Http\Controllers\VisitorController;
 
 class WebController extends Controller

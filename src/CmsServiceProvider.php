@@ -14,6 +14,7 @@ use Illuminate\Support\ServiceProvider;
 use Udiko\Cms\Exceptions\NotFoundHandler;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Support\Facades\Artisan;
 use Udiko\Cms\Http\Controllers\SetupController;
 use Udiko\Cms\Http\Controllers\VisitorController;
 

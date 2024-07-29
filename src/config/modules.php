@@ -513,5 +513,6 @@ return [
         'detail_visited'=> false,
         'data'=> null,
         'domain'=>null,
+        'installed'=>env('APP_INSTALLED',false),
         'public_path'=>env('PUBLIC_PATH',null),
 ];

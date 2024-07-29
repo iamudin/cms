@@ -19,8 +19,11 @@ class Web
      */
     public function handle(Request $request, Closure $next)
     {
-        if (strpos($request->getRequestUri(), 'index.php') !== false || $request->getHost()!=config('app.url')) {
-            return redirect('http://' . config('app.url') . str_replace('/index.php', '', $request->getRequestUri()));
+        if(!config('modules.installed')){
+            return redirect()->route('install');
+        }
+        if (strpos($request->getRequestUri(), 'index.php') !== false || $request->getHost()!=str_replace('http://','',config('app.url'))) {
+            return redirect( config('app.url') . str_replace('/index.php', '', $request->getRequestUri()));
         }
 
         $modules = collect(get_module())->where('name', '!=', 'halaman')->where('public', true);

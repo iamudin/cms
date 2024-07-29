@@ -1,21 +1,81 @@
 <?php
 namespace Udiko\Cms\Http\Controllers;
 
+use Exception;
 use \Udiko\Cms\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Session;
 
 class SetupController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        if (db_connected()) {
+        /*if (db_connected()) {
             $this->generate_dummy_content();
             regenerate_cache();
             recache_option();
             clear_route();
-        }
+        }*/
+        if($request->isMethod('post')){
+            if(!session('dbcredential')){
+                $dbcredential = $request->validate([
+                    'db_host'=> 'required|string',
+                    'db_username'=> 'required|string',
+                    'db_database'=> 'required|string',
+                ]);
+                if($this->checkConnection($request->db_host,$request->db_username,$request->db_password,$request->db_database)){
+                    Session::put('dbcredential',$dbcredential);
+                    return back();
+                }else{
+                    return back()->with('danger','DB Connection Failure!');
+                }
+            }else{
+                $usercredential = $request->validate([
+                    'username'=> 'required|string|regex:/^[a-zA-Z\p{P}]+$/u',
+                    'email'=> 'required|string',
+                    'password'=> 'required|confirmed',
+                ]);
+                $option = $request->validate([
+                    'site_title'=> 'required|string',
+                    'site_description'=> 'required|string',
+                ]);
+                Session::put('usercredential',$usercredential);
+                return back();
 
+            }
+
+
+
+        }
+        return view('cms::install.index');
+
+    }
+    public function checkConnection($host,$username,$password,$db)
+    {
+        $host = $host;
+        $database = $db;
+        $username = $username;
+        $password = $password ?? '';
+
+        config([
+            'database.connections.custom' => [
+                'driver' => 'mysql',
+                'host' => $host,
+                'database' => $database,
+                'username' => $username,
+                'password' => $password,
+            ],
+        ]);
+
+        try {
+            DB::connection('custom')->getPdo();
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
     function generate_dummy_content()
     {

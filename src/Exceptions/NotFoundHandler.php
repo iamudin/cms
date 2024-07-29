@@ -20,7 +20,7 @@ class NotFoundHandler extends ExceptionHandler
     {
 
         if ($exception instanceof NotFoundHttpException) {
-            if (get_option('site_maintenance') == 'Y' && !Auth::check()) {
+            if (get_option('site_maintenance') == 'Y') {
                 return undermaintenance();
                 }
             if ($request->expectsJson()) {
@@ -38,7 +38,7 @@ class NotFoundHandler extends ExceptionHandler
                         return redirect($redirect);
                     abort(403);
                 }
-        
+
                 if (get_option('block_ip') && in_array($request->ip(), explode(",", get_option('block_ip')))) {
                     abort(403);
                 }
