@@ -2,8 +2,6 @@
 
 namespace Udiko\Cms\Http\Controllers;
 
-use Exception;
-use Illuminate\Support\Facades\Schema;
 use \Udiko\Cms\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -11,49 +9,34 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Session;
 
 class SetupController extends Controller
 {
 
     public function index(Request $request)
     {
-        // Cache::forget('dbcredential');
         if (config('modules.installed')) {
             return to_route('home');
         }
         if(env('DB_CONNECTION')!='mysql'){
-            rewrite_env(['DB_CONNECTION'=>'mysql']);
             rewrite_env(['CACHE_STORE'=>'file']);
             rewrite_env(['SESSION_DRIVER'=>'file']);
             rewrite_env(['QUEUE_CONNECTION'=>'sync']);
-            return to_route('install');
 
         }
         if ($request->isMethod('post')) {
             if (!cache('dbcredential')) {
                 $dbcredential = $request->validate([
-                    'db_host' => 'required|string',
-                    'db_username' => 'required|string',
-                    'db_database' => 'required|string',
+                    'db_host' => 'required',
+                    'db_username' => 'required',
+                    'db_database' => 'required',
+                    'db_password' => 'nullable',
                 ]);
                 $result = $this->checkConnection($request->db_host, $request->db_username, $request->db_password, $request->db_database);
                     if ($result == 'no_table_exists') {
 
                         Cache::put('dbcredential', $dbcredential);
-                        $db['APP_URL'] = 'http://' . $request->getHttpHost();
-                        $db['APP_LOCALE'] = 'ID';
-                        $db['APP_FALLBACK_LOCALE'] = 'ID';
-                        $db['APP_TIMEZONE'] = '"Asia/Jakarta"';
-                        foreach (cache('dbcredential') as $k => $row) {
-                            $key = Str::upper($k);
-                            $db[$key] =  $row;
-                        }
-                        $db['DB_PORT'] = '3306';
-                        if (!isset($db['DB_PASSWORD'])) {
-                            $db['DB_PASSWORD'] = '';
-                        }
-                        $this->createEnvConfig($db);
+
                         $request->session()->regenerateToken();
                         return back()->with('success', 'DB Connection Success!');
                     } elseif (is_array($result)) {
@@ -74,26 +57,52 @@ class SetupController extends Controller
                     'site_title' => 'required|string',
                     'site_description' => 'required|string',
                 ]);
-                Artisan::call('migrate');
-                if ($this->generate_dummy_content($usercredential)) {
-                    foreach ($option as $k => $row) {
-                        \Udiko\Cms\Models\Option::updateOrCreate([
-                            'name' => $k
-                        ], ['value' => $row, 'autoload' => 1]);
-                    }
-                    regenerate_cache();
-                    recache_option();
-                    clear_route();
-                    if ($this->createEnvConfig(['APP_INSTALLED' => true])) {
-                        Artisan::call('vendor:publish --tag=cms');
-                        Artisan::call('optimize');
-                        Cache::forget('dbcredential');
-                        return to_route('login');
-                    }
+                Cache::put('usercredential',$usercredential);
+                Cache::put('option',$option);
+                $db['APP_URL'] = 'http://' . $request->getHttpHost();
+                $db['APP_LOCALE'] = 'ID';
+                $db['APP_FALLBACK_LOCALE'] = 'ID';
+                $db['DB_CONNECTION'] = 'mysql';
+                $db['APP_TIMEZONE'] = '"Asia/Jakarta"';
+                foreach (cache('dbcredential') as $k => $row) {
+                    $key = Str::upper($k);
+                    $db[$key] =  $row;
                 }
+                $db['DB_PORT'] = '3306';
+                if (!isset($db['DB_PASSWORD'])) {
+                    $db['DB_PASSWORD'] = '';
+                }
+                $this->createEnvConfig($db);
+                return to_route('initializing');
             }
         }
         return view('cms::install.index');
+    }
+    public function initializing(){
+        $usercredential = Cache::get('usercredential');
+        $option = Cache::get('option');
+        if(empty($usercredential) || empty($option)){
+            return to_route('install');
+        }
+        Artisan::call('migrate');
+        if ($this->generate_dummy_content($usercredential)) {
+            foreach ($option as $k => $row) {
+                \Udiko\Cms\Models\Option::updateOrCreate([
+                    'name' => $k
+                ], ['value' => $row, 'autoload' => 1]);
+            }
+            regenerate_cache();
+            recache_option();
+            clear_route();
+            if ($this->createEnvConfig(['APP_INSTALLED' => true])) {
+                Artisan::call('vendor:publish --tag=cms');
+                Artisan::call('optimize');
+                Cache::forget('dbcredential');
+                Cache::forget('option');
+                Cache::forget('usercredential');
+                return to_route('login');
+            }
+        }
     }
     public function createEnvConfig(array $keyPairs)
     {
@@ -101,25 +110,7 @@ class SetupController extends Controller
             return true;
         }
     }
-    function setEnvironmentValue($envKey, $envValue)
-    {
-        $envFile = app()->environmentFilePath();
-        $str = file_get_contents($envFile);
-        $str .= "\n"; // In case the searched variable is in the last line without \n
-        $keyPosition = strpos($str, "{$envKey}=");
-        $endOfLinePosition = strpos($str, "\n", $keyPosition);
-        $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
 
-        // If key does not exist, add it
-        if (!$keyPosition || !$endOfLinePosition || !$oldLine) {
-            $str .= "{$envKey}={$envValue}\n";
-        } else {
-            $str = str_replace($oldLine, "{$envKey}={$envValue}", $str);
-        }
-
-        $str = substr($str, 0, -1);
-        file_put_contents($envFile, $str);
-    }
     public function checkConnection($host, $username, $password, $db)
     {
         $host = $host;

@@ -45,7 +45,7 @@ $modules = collect(get_module())->where('name','!=','halaman')->where('active', 
 
 Route::match(['get', 'post'],'/', [WebController::class, 'home'])->name('home')->middleware(['public']);
 Route::match(['get', 'post'],'install', [SetupController::class, 'index'])->name('install');
-
+Route::match(['get', 'post'],'install/initializing', [SetupController::class, 'initializing'])->name('initializing');
 
 }
 Route::match(['get', 'post'],'media/{slug}', [MediaController::class, 'stream_by_id'])->name('stream');
