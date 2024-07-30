@@ -40,6 +40,9 @@ class LoginController extends Controller
     }
     public function loginForm(Request $request)
     {
+        if(!config('modules.installed')){
+            return redirect()->route('install');
+        }
         if(Auth::check())
         return redirect(admin_path().'/dashboard');
         $this->codeCaptcha();
