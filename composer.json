@@ -25,7 +25,7 @@
     "minimum-stability": "stable",
     "require": {
         "yajra/laravel-datatables-oracle": "*",
-        "intervention/image": "*",
+        "intervention/image": "~2.0",
         "stevebauman/location":"*",
         "predis/predis": "*",
         "nesbot/carbon": "*"
