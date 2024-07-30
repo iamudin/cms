@@ -25,6 +25,8 @@ class SetupController extends Controller
         if(env('DB_CONNECTION')!='mysql'){
             rewrite_env(['DB_CONNECTION'=>'mysql']);
             rewrite_env(['CACHE_STORE'=>'file']);
+            rewrite_env(['SESSION_DRIVER'=>'file']);
+            rewrite_env(['QUEUE_CONNECTION'=>'sync']);
             return to_route('install');
 
         }
