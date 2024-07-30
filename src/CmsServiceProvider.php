@@ -75,6 +75,7 @@ class CmsServiceProvider extends ServiceProvider
         $this->defineAssetPublishing();
         $this->cmsHandler();
         $this->registerRoutes();
+
     }
     public function register()
     {
@@ -84,12 +85,14 @@ class CmsServiceProvider extends ServiceProvider
         if (config('modules.public_path')) {
             $this->app->usePublicPath(base_path() . '/' . config('modules.public_path'));
         }
+
     }
     protected function cmsHandler()
     {
         Carbon::setLocale(config('app.locale'));
         Carbon::setFallbackLocale(config('app.fallback_locale'));
         Config::set('auth.providers.users.model', 'Udiko\Cms\Models\User');
+
         if (DB::connection()->getPDO() && $this->checkAllTables()) {
             if (empty(Cache::get('option'))) {
                 recache_option();

@@ -20,6 +20,13 @@ class NotFoundHandler extends ExceptionHandler
     {
 
         if ($exception instanceof NotFoundHttpException) {
+            if(!config('modules.installed')){
+                if(env('DB_CONNECTION')!='mysql'){
+                    rewrite_env(['DB_CONNECTION'=>'mysql']);
+                }
+            return redirect()->route('install');
+
+            }
             if (get_option('site_maintenance') == 'Y') {
                 return undermaintenance();
                 }

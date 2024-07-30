@@ -4,12 +4,13 @@ namespace Udiko\Cms\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Udiko\Cms\Models\Visitor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\RateLimiter;
 use Udiko\Cms\Http\Controllers\VisitorController;
-use Udiko\Cms\Models\Visitor;
 
 class Panel
 {
@@ -22,7 +23,13 @@ class Panel
      */
     public function handle(Request $request, Closure $next)
     {
+        if(!config('modules.installed')){
+            if(env('DB_CONNECTION')!='mysql'){
+                rewrite_env(['DB_CONNECTION'=>'mysql']);
+            }
 
+            return redirect()->route('install');
+        }
         $admin_path = admin_path();
         foreach (get_module() as $modul) {
 

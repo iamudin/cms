@@ -1,11 +1,16 @@
 <?php
+
 namespace Udiko\Cms\Http\Controllers;
 
 use Exception;
+use Illuminate\Support\Facades\Schema;
 use \Udiko\Cms\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Session;
 
 class SetupController extends Controller
@@ -13,47 +18,107 @@ class SetupController extends Controller
 
     public function index(Request $request)
     {
-        /*if (db_connected()) {
-            $this->generate_dummy_content();
-            regenerate_cache();
-            recache_option();
-            clear_route();
-        }*/
-        if($request->isMethod('post')){
-            if(!session('dbcredential')){
-                $dbcredential = $request->validate([
-                    'db_host'=> 'required|string',
-                    'db_username'=> 'required|string',
-                    'db_database'=> 'required|string',
-                ]);
-                if($this->checkConnection($request->db_host,$request->db_username,$request->db_password,$request->db_database)){
-                    Session::put('dbcredential',$dbcredential);
-                    return back();
-                }else{
-                    return back()->with('danger','DB Connection Failure!');
-                }
-            }else{
-                $usercredential = $request->validate([
-                    'username'=> 'required|string|regex:/^[a-zA-Z\p{P}]+$/u',
-                    'email'=> 'required|string',
-                    'password'=> 'required|confirmed',
-                ]);
-                $option = $request->validate([
-                    'site_title'=> 'required|string',
-                    'site_description'=> 'required|string',
-                ]);
-                Session::put('usercredential',$usercredential);
-                return back();
-
-            }
-
-
+        // Cache::forget('dbcredential');
+        if (config('modules.installed')) {
+            return to_route('home');
+        }
+        if(env('DB_CONNECTION')!='mysql'){
+            rewrite_env(['DB_CONNECTION'=>'mysql']);
+            return to_route('install');
 
         }
-        return view('cms::install.index');
+        if ($request->isMethod('post')) {
+            if (!cache('dbcredential')) {
+                $dbcredential = $request->validate([
+                    'db_host' => 'required|string',
+                    'db_username' => 'required|string',
+                    'db_database' => 'required|string',
+                ]);
+                $result = $this->checkConnection($request->db_host, $request->db_username, $request->db_password, $request->db_database);
+                    if ($result == 'no_table_exists') {
 
+                        Cache::put('dbcredential', $dbcredential);
+                        $db['APP_URL'] = 'http://' . $request->getHttpHost();
+                        $db['APP_LOCALE'] = 'ID';
+                        $db['APP_FALLBACK_LOCALE'] = 'ID';
+                        $db['CACHE_STORE'] = 'file';
+                        $db['APP_TIMEZONE'] = '"Asia/Jakarta"';
+                        foreach (cache('dbcredential') as $k => $row) {
+                            $key = Str::upper($k);
+                            $db[$key] =  $row;
+                        }
+                        $db['DB_PORT'] = '3306';
+                        if (!isset($db['DB_PASSWORD'])) {
+                            $db['DB_PASSWORD'] = '';
+                        }
+                        $this->createEnvConfig($db);
+                        $request->session()->regenerateToken();
+                        return back()->with('success', 'DB Connection Success!');
+                    } elseif (is_array($result)) {
+                        $request->session()->regenerateToken();
+                        return back()->with('danger', 'Please select empty Database!');
+                    } else {
+                        $request->session()->regenerateToken();
+                        return back()->with('danger', $result);
+                    }
+
+            } else {
+                $usercredential = $request->validate([
+                    'username' => 'required|string|regex:/^[a-zA-Z\p{P}]+$/u',
+                    'email' => 'required|string',
+                    'password' => 'required|confirmed',
+                ]);
+                $option = $request->validate([
+                    'site_title' => 'required|string',
+                    'site_description' => 'required|string',
+                ]);
+                Artisan::call('migrate');
+                if ($this->generate_dummy_content($usercredential)) {
+                    foreach ($option as $k => $row) {
+                        \Udiko\Cms\Models\Option::updateOrCreate([
+                            'name' => $k
+                        ], ['value' => $row, 'autoload' => 1]);
+                    }
+                    regenerate_cache();
+                    recache_option();
+                    clear_route();
+                    if ($this->createEnvConfig(['APP_INSTALLED' => true])) {
+                        Artisan::call('vendor:publish --tag=cms');
+                        Artisan::call('optimize');
+                        Cache::forget('dbcredential');
+                        return to_route('login');
+                    }
+                }
+            }
+        }
+        return view('cms::install.index');
     }
-    public function checkConnection($host,$username,$password,$db)
+    public function createEnvConfig(array $keyPairs)
+    {
+        if (rewrite_env($keyPairs)) {
+            return true;
+        }
+    }
+    function setEnvironmentValue($envKey, $envValue)
+    {
+        $envFile = app()->environmentFilePath();
+        $str = file_get_contents($envFile);
+        $str .= "\n"; // In case the searched variable is in the last line without \n
+        $keyPosition = strpos($str, "{$envKey}=");
+        $endOfLinePosition = strpos($str, "\n", $keyPosition);
+        $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
+
+        // If key does not exist, add it
+        if (!$keyPosition || !$endOfLinePosition || !$oldLine) {
+            $str .= "{$envKey}={$envValue}\n";
+        } else {
+            $str = str_replace($oldLine, "{$envKey}={$envValue}", $str);
+        }
+
+        $str = substr($str, 0, -1);
+        file_put_contents($envFile, $str);
+    }
+    public function checkConnection($host, $username, $password, $db)
     {
         $host = $host;
         $database = $db;
@@ -67,37 +132,35 @@ class SetupController extends Controller
                 'database' => $database,
                 'username' => $username,
                 'password' => $password,
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
+                'prefix' => '',
+                'strict' => true,
+                'engine' => null,
             ],
         ]);
 
         try {
-            DB::connection('custom')->getPdo();
-            return true;
-        } catch (Exception $e) {
-            return false;
+            DB::purge('custom');
+            DB::reconnect('custom');
+
+        // Memeriksa tabel dalam database
+        $tables = DB::connection('custom')->select('SHOW TABLES');
+
+        if (empty($tables)) {
+            return "no_table_exists";
+        } else {
+            $tableNames = array_map('current', $tables);
+            return $tableNames;
+        }
+        } catch (\Exception $e) {
+            return 'Database Connection Not Found!';
         }
     }
-    function generate_dummy_content()
+    function generate_dummy_content($user)
     {
-        $data = array('username' => 'admin', 'password' => bcrypt('admin'),'host'=>env('APP_URL'), 'email' => 'admin@email.com', 'status' => 'active', 'slug' => 'admin-web', 'name' => 'Admin Web', 'url' => 'author/admin-web', 'photo' => null, 'level' => 'admin');
-        $id = User::UpdateOrcreate(['username' => 'admin'], $data);
-        $a = 0;
-        while ($a <= 50):
-            $id->posts()->updateOrcreate(
-                [
-                    'title' => $title = fake()->sentence,
-                    'slug' => $slug = str()->slug($title),
-                    'content' => fake()->paragraph,
-                    'media' => null,
-                    'url' => 'berita/' . $slug,
-                    'status' => 'publish',
-                    'type' => 'berita',
-                ]
-            );
-            $a++;
-
-        endwhile;
-        //create menu
+        $data = array('username' => $user['username'], 'password' => bcrypt($user['password']), 'host' => request()->getHost(), 'email' => $user['email'], 'status' => 'active', 'slug' => 'admin-web', 'name' => 'Admin Web', 'url' => 'author/admin-web', 'photo' => null, 'level' => 'admin');
+        $id = User::UpdateOrcreate(['username' => $user['username']], $data);
         $id->posts()->updateOrcreate(
             [
                 'title' => $title = 'Header',
@@ -123,7 +186,7 @@ class SetupController extends Controller
             ['name' => 'admin_path', 'value' => 'panel', 'autoload' => 1],
             ['name' => 'logo', 'value' => 'noimage.webp', 'autoload' => 1],
             ['name' => 'favicon', 'value' => 'noimage.webp', 'autoload' => 1],
-            ['name' => 'site_url', 'value' => env('APP_URL'), 'autoload' => 1],
+            ['name' => 'site_url', 'value' => request()->getHttpHost(), 'autoload' => 1],
             ['name' => 'site_keyword', 'value' => 'Web, Official, New', 'autoload' => 1],
             ['name' => 'site_description', 'value' => 'My Offical Web', 'autoload' => 1],
             ['name' => 'address', 'value' => 'Anggrek Streen, 2', 'autoload' => 1],
@@ -144,7 +207,8 @@ class SetupController extends Controller
 
         foreach ($option as $row) {
             \Udiko\Cms\Models\Option::updateOrCreate([
-                'name'=>$row['name']],['value'=>$row['value'],'autoload'=>$row['autoload']]);
+                'name' => $row['name']
+            ], ['value' => $row['value'], 'autoload' => $row['autoload']]);
         }
         return true;
     }

@@ -328,6 +328,7 @@ if (!function_exists('rewrite_env')) {
         $fp = fopen($envFile, 'w');
         fwrite($fp, $newEnv);
         fclose($fp);
+        return true;
     }
 }
 

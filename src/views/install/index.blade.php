@@ -44,9 +44,10 @@
                                 {{ session('danger') }}
                             </div>
                             @endif
+
                             <form action="{{ url()->current() }}" method="POST">
                                 @csrf
-                                @if(!session('dbcredential'))
+                                @if(!cache('dbcredential'))
                                 <div class="alert alert-info">
                                     <h1>Welcome to CMS laravel !</h1> Please finish installation step bellow for ready use this System. Good Luck!
                                 </div>
@@ -76,6 +77,16 @@
                                 </div>
                             </div>
                                 @else
+                                @if(cache('dbcredential'))
+                                <div class="alert alert-info">
+                                    Your CMS will installed on :<br>
+                                    Domain : <b>{{ request()->getHttpHost() }}</b><br>
+                                    DB Name : <b>{{ cache('dbcredential')['db_database'] }}</b><br>
+                                    DB Host: <b>{{ cache('dbcredential')['db_host'] }}</b><br>
+                                    DB Username : <b>{{ cache('dbcredential')['db_username'] }}</b><br>
+                                    DB Password : <b>*******</b><br>
+                                </div>
+                                @endif
                                 <div class="card">
                                     <div class="card-header">
                                         <i class="bi bi-globe"></i> Site
@@ -83,11 +94,11 @@
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <label for="adminEmail" class="form-label">Site Title</label>
-                                            <input type="text" name="site_title" class="form-control" id="adminEmail" placeholder="Enter Site Title">
+                                            <input value="{{ old('site_title') ?? null }}"  type="text" name="site_title" class="form-control"  placeholder="Enter Site Title">
                                         </div>
                                         <div class="mb-3">
                                             <label for="adminEmail" class="form-label">Site Description</label>
-                                            <input type="text" name="site_description" class="form-control" id="adminEmail" placeholder="Enter Site Description">
+                                            <input value="{{ old('site_description') ?? null }}" type="text" name="site_description" class="form-control"placeholder="Enter Site Description">
                                         </div>
                                     </div>
                                 </div>
@@ -118,7 +129,7 @@
                                 @endif
 
                                 <div class="d-grid mt-3">
-                                    <button type="submit" class="btn btn-info">@if(session('dbcredential')) Install Now @else Next @endif <i class="bi bi-arrow-right"></i></button>
+                                    <button type="submit" class="btn btn-info">@if(cache('dbcredential')) Install Now @else Next @endif <i class="bi bi-arrow-right"></i></button>
                                 </div>
                             </form>
                         </div>

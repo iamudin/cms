@@ -43,7 +43,7 @@ $modules = collect(get_module())->where('name','!=','halaman')->where('active', 
 ->where('slug', '(?!' . implode('|', array_merge([admin_path(),'search','tags','install'],$modules->pluck('name')
 ->toArray())) . ')[a-zA-Z0-9-_]+')->middleware(['public']);
 
-Route::match(['get', 'post'],'/', [WebController::class, 'home'])->middleware(['public']);
+Route::match(['get', 'post'],'/', [WebController::class, 'home'])->name('home')->middleware(['public']);
 Route::match(['get', 'post'],'install', [SetupController::class, 'index'])->name('install');
 
 
