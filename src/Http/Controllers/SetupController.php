@@ -44,7 +44,6 @@ class SetupController extends Controller
                         $db['APP_URL'] = 'http://' . $request->getHttpHost();
                         $db['APP_LOCALE'] = 'ID';
                         $db['APP_FALLBACK_LOCALE'] = 'ID';
-                        $db['CACHE_STORE'] = 'file';
                         $db['APP_TIMEZONE'] = '"Asia/Jakarta"';
                         foreach (cache('dbcredential') as $k => $row) {
                             $key = Str::upper($k);

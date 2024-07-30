@@ -308,26 +308,31 @@ if (!function_exists('rewrite_env')) {
         $newlyInserted = false;
 
         foreach ($keyPairs as $key => $value) {
-            // Make sure key is uppercase (can be left out)
-            $key = str($key)->upper();
+            // Make sure key is uppercase
+            $key = strtoupper($key);
 
-            if (str_contains($newEnv, "$key=")) {
-                // If key exists, replace value
+            // Check if the key exists and is commented
+            if (preg_match("/#\s*$key=.*\n/", $newEnv)) {
+                // Uncomment and replace value
+                $newEnv = preg_replace("/#\s*$key=(.*)\n/", "$key=$value\n", $newEnv);
+            } elseif (preg_match("/$key=.*\n/", $newEnv)) {
+                // If key exists and is not commented, replace value
                 $newEnv = preg_replace("/$key=(.*)\n/", "$key=$value\n", $newEnv);
             } else {
-                // Check if spacing is correct
+                // Append new key-value pair
                 if (!str_ends_with($newEnv, "\n\n") && !$newlyInserted) {
                     $newEnv .= str_ends_with($newEnv, "\n") ? "\n" : "\n\n";
                     $newlyInserted = true;
                 }
-                // Append new
                 $newEnv .= "$key=$value\n";
             }
         }
 
+        // Write the updated content back to the .env file
         $fp = fopen($envFile, 'w');
         fwrite($fp, $newEnv);
         fclose($fp);
+
         return true;
     }
 }
