@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 
@@ -12,6 +13,80 @@ if (!function_exists('query')) {
 if (!function_exists('req')) {
     function req(){
         return new Request;
+    }
+}
+
+if(!function_exists('isNotInSession')){
+    function isNotInSession($request){
+        $user = $request->user();
+        if(md5(md5($request->session()->id())) != $user->active_session){
+            \Illuminate\Support\Facades\Auth::logout($request->user());
+            $user->update(['active_session'=>null]);
+            return to_route('login')->with('error','Session is expired or another user was logged your account!')->send();
+        }
+    }
+}
+
+
+if(!function_exists('forbidden')){
+    function forbidden($request){
+        if (get_option('forbidden_keyword') && str()->contains(str($request->fullUrl())->lower(), explode(",", str_replace(" ", "", get_option('forbidden_keyword') ?? '')))) {
+            $redirect = get_option('forbidden_redirect');
+            if (!empty($redirect) && str($redirect)->isUrl()){
+                return redirect($redirect);
+            }else{
+                abort(403);
+            }
+        }
+        if (get_option('block_ip') && in_array($request->ip(), explode(",", get_option('block_ip')))) {
+            abort(403);
+        }
+    }
+}
+if(!function_exists('processVisitorData')){
+    function processVisitorData()
+    {
+
+        if (!Cache::has('visit_to_db')) {
+            $cacheKey = 'visitor_sorted';
+            $visitorDataList = Cache::pull($cacheKey, []);
+            foreach ($visitorDataList as $data) {
+                $visitorData = $data;
+                if (is_array($data)) {
+                    \Udiko\Cms\Models\Visitor::create($visitorData);
+                }
+            }
+
+            Cache::put('visit_to_db', true, now()->addMinutes(1));
+        }
+    }
+}
+if (!function_exists('ratelimiter')) {
+    function ratelimiter($request,$limittime){
+        $ip = $request->ip();
+        $sessionId = $request->session()->getId();
+        $userAgent = $request->header('User-Agent');
+        $url = $request->fullUrl();
+        $referer = $request->header('referer');
+        $limittime = (int)$limittime;
+        $limitduration = (int)get_option('limit_duration');
+        $key = generateRateLimitKey($ip, $sessionId, $userAgent, $url, $referer);
+        $maxAttempts = $limittime > 0 ? $limittime : 10;
+        $decayMinutes = $limitduration > 0 ? $limitduration : 1;
+        if (Cache::has($key)) {
+            $attempts = cache::get($key);
+            if ($attempts >= $maxAttempts) {
+                return abort( 429);
+            }
+        }
+        Cache::increment($key);
+        Cache::put($key, Cache::get($key), now()->addMinutes($decayMinutes));
+    }
+}
+if (!function_exists('generateRateLimitKey')) {
+    function generateRateLimitKey($ip, $sessionId, $userAgent, $url, $referer)
+    {
+        return md5($ip . '|' . $sessionId . '|' . $userAgent . '|' . $url . '|' . $referer);
     }
 }
 if (!function_exists('tanggal_indo')) {

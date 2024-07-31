@@ -9,10 +9,10 @@
     <!-- Font-icon css-->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>Masuk - {{get_option('site_title')}}</title>
-    <link rel="shortcut icon" href="{{url(get_option('favicon') ?? 'backend/no-image.png')}}" />
-    <meta property="og:title" content="Masuk - {{get_option('site_title')}}" />
-<meta property="og:image" content="{{url(get_option('logo'))}}" />
-<meta property="og:site_name" content="{{get_option('site_title')}}" />
+    <link rel="shortcut icon" href="{{url(get_option('favicon') ?? noimage())}}" />
+    <meta property="og:title" content="Masuk - {{get_option('site_title')?? 'Web Title'}}" />
+<meta property="og:image" content="{{url(get_option('logo')??noimage())}}" />
+<meta property="og:site_name" content="{{get_option('site_title') ?? 'Web Title'}}" />
 <meta property="og:description" content="Masuk Sebagai Admin / Operator" />
   </head>
   <body>
@@ -24,10 +24,10 @@
           @csrf
 
           <center>
-            <img height="80" src="{{url(get_option('icon') ?? 'backend/no-image.png')}}">
+            <img height="80" src="{{url(get_option('icon') ?? noiomage())}}">
             <br>
             <br>
-            <h4 class="text-warning">{{get_option('site_title')}}</h4>
+            <h4 class="text-warning">{{get_option('site_title') ?? 'Web Title'}}</h4>
             <br>
 
             @if(get_option('site_maintenance')=='Y')

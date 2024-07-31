@@ -15,7 +15,6 @@ class Panel
     {
         $admin_path = admin_path();
         foreach (get_module() as $modul) {
-
             if ($request->is($admin_path . '/' . $modul->name)) {
                 config([
                     'modules.current' => [
@@ -82,6 +81,7 @@ class Panel
                 ]);
             }
         }
+        isNotInSession($request);
         $response = $next($request);
         if ($response->headers->get('Content-Type') == 'text/html; charset=UTF-8') {
             $content = $response->getContent();

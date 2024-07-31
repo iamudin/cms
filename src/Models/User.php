@@ -31,6 +31,7 @@ class User extends Authenticatable
         'host',
         'url',
         'slug',
+        'active_session',
         'last_login_ip',
         'last_login_at',
     ];

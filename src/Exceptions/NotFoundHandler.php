@@ -26,10 +26,11 @@ class NotFoundHandler extends ExceptionHandler
             if(!config('modules.installed')){
             return redirect()->route('install');
             }
+            forbidden($request);
+
             if (get_option('site_maintenance') == 'Y' && !Auth::check()) {
                 return undermaintenance();
-                }
-
+            }
             if ($request->expectsJson()) {
                 return response()->json(['error' => 'Not Found'], 404);
             } else {

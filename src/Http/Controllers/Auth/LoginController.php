@@ -48,11 +48,7 @@ class LoginController extends Controller
     }
     public function loginSubmit(Request $request,RateLimiter $limiter,User $user)
     {
-        if ($limiter->tooManyAttempts('login'.getRateLimiterKey($request), get_option('time_limit_login') ?? 3)) {
-            return abort(429);
-        }
-        $limit = get_option('limit_duration') ??  60;
-        $limiter->hit('login'.getRateLimiterKey($request), (int)$limit);
+      ratelimiter($request,get_option('time_limit_login'));
         if($request->username && $request->password)
         {
             $request->validate([
@@ -69,7 +65,7 @@ class LoginController extends Controller
         {
             $request->session()->regenerate();
             if(Auth::user()->status == 'active'){
-             Auth::user()->update(['last_login_at'=>now(),'last_login_ip'=>$request->ip()]);
+             Auth::user()->update(['last_login_at'=>now(),'last_login_ip'=>$request->ip(),'active_session'=>md5(md5($request->session()->id()))]);
             return  redirect()->intended(url(admin_path().'/dashboard'));
             }
             else{

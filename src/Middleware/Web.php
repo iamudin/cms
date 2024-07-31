@@ -23,20 +23,11 @@ class Web
             return redirect( config('app.url') . str_replace('/index.php', '', $request->getRequestUri()));
         }
         $response = $next($request);
-        $this->processVisitorData();
         if (get_option('site_maintenance') == 'Y' && !Auth::check()) {
             return undermaintenance();
         }
+        processVisitorData();
 
-        if (get_option('forbidden_keyword') && str()->contains(str($request->fullUrl())->lower(), explode(",", str_replace(" ", "", get_option('forbidden_keyword') ?? '')))) {
-            if ($redirect = get_option('forbidden_redirect'))
-                return redirect($redirect);
-            abort(403);
-        }
-
-        if (get_option('block_ip') && in_array($request->ip(), explode(",", get_option('block_ip')))) {
-            abort(403);
-        }
         if ($response->headers->get('Content-Type') == 'text/html; charset=UTF-8') {
             $content = $response->getContent();
             // Tambahkan atribut loading="lazy" ke semua tag <img>
@@ -57,22 +48,7 @@ class Web
         $this->securityHeaders($response);
         return $response;
     }
-    public function processVisitorData()
-    {
 
-        if (!Cache::has('visit_to_db')) {
-            $cacheKey = 'visitor_sorted';
-            $visitorDataList = Cache::pull($cacheKey, []);
-            foreach ($visitorDataList as $data) {
-                $visitorData = $data;
-                if (is_array($data)) {
-                    Visitor::create($visitorData);
-                }
-            }
-
-            Cache::put('visit_to_db', true, now()->addMinutes(1));
-        }
-    }
     function securityHeaders($response){
             $response->headers->set('X-Content-Type-Options', 'nosniff');
 

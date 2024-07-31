@@ -1,7 +1,5 @@
 <?php
 namespace Udiko\Cms\Http\Controllers;
-
-use Carbon\Carbon;
 use Udiko\Cms\Models\Post;
 use Illuminate\Http\Request;
 use Udiko\Cms\Models\Option;
@@ -11,7 +9,6 @@ use Illuminate\Support\Facades\Artisan;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Support\Facades\Redirect;
 
 class PanelController extends Controller implements HasMiddleware
 {
@@ -21,12 +18,12 @@ class PanelController extends Controller implements HasMiddleware
         ];
     }
 
-    protected function toDashboard(){
-        if(!request()->segment(2))
-        return to_route('dashboard')->send();
+    protected function toDashboard($request){
+        if(!$request->segment(2))
+        return to_route('panel.dashboard')->send();
     }
     function index(Request $request){
-        $this->toDashboard();
+        $this->toDashboard($request);
         $user = $request->user();
         $da = array();
         for ($i=0; $i<=6; $i++) {
@@ -120,9 +117,9 @@ class PanelController extends Controller implements HasMiddleware
             ['Block IP', '0.0.0.0,0.0.1.0,..,..'],
             ['Forbidden Keyword', 'Judi Online, Gacor, xxx, other'],
             ['Forbidden Redirect', 'Eg: https://yourpage.url or other'],
-            ['Time Limit Login', '1,2,3,4'],
-            ['Time Limit Reload', '1,2,3,4,5'],
-            ['Limit Duration', 'in miliscond eg: 10000 for 10 seconds'],
+            ['Time Limit Login', 'default 10 times'],
+            ['Time Limit Reload', 'default 10 times'],
+            ['Limit Duration', 'in minute default 1 minute'],
             ['Roles', 'operator,editor,publisher']);
 
         $data['home_page'] = Post::whereType('halaman')->whereStatus('publish')->whereMime('html')->select('id', 'title')->get();

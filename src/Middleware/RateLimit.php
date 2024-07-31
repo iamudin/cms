@@ -103,35 +103,12 @@ class RateLimit
                 'modules.current' => $attr
             ]);
         }
-
         if(config('modules.current.detail_visited')){
-        $ip = $request->ip();
-        $sessionId = $request->session()->getId();
-        $userAgent = $request->header('User-Agent');
-        $url = $request->fullUrl();
-        $referer = $request->header('referer');
-        $limittime = (int)get_option('time_limit_reload');
-        $limitduration = (int)get_option('limit_duration');
-        $key = $this->generateRateLimitKey($ip, $sessionId, $userAgent, $url, $referer);
-        $maxAttempts = $limittime > 0 ? $limittime : 10;
-        $decayMinutes = $limitduration > 0 ? $limitduration : 1;
-        if (Cache::has($key)) {
-            $attempts = Cache::get($key);
-            if ($attempts >= $maxAttempts) {
-                return abort( 429);
-            }
-        }
-        Cache::increment($key);
-        Cache::put($key, Cache::get($key), now()->addMinutes($decayMinutes));
-
+            ratelimiter($request,get_option('time_limit_reload'));
     }
-
+    forbidden($request);
     return $next($request);
 
     }
 
-    protected function generateRateLimitKey($ip, $sessionId, $userAgent, $url, $referer)
-    {
-        return md5($ip . '|' . $sessionId . '|' . $userAgent . '|' . $url . '|' . $referer);
-    }
 }

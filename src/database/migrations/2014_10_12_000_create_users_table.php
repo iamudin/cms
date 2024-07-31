@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('level')->default('admin');
             $table->string('url')->nullable();
             $table->string('host')->nullable();
+            $table->string('active_session')->nullable();
             $table->json('user_meta')->nullable();
             $table->enum('status',['active','blocked'])->default('blocked');
             $table->string('last_login_ip')->nullable();
