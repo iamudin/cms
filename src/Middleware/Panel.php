@@ -23,17 +23,10 @@ class Panel
      */
     public function handle(Request $request, Closure $next)
     {
-        if(!config('modules.installed')){
-            if(env('DB_CONNECTION')!='mysql'){
-                rewrite_env(['DB_CONNECTION'=>'mysql']);
-            }
-
-            return redirect()->route('install');
-        }
         $admin_path = admin_path();
         foreach (get_module() as $modul) {
 
-            if (request()->is($admin_path . '/' . $modul->name)) {
+            if ($request->is($admin_path . '/' . $modul->name)) {
                 config([
                     'modules.current' => [
                         'post_type' => $modul->name,
@@ -42,7 +35,7 @@ class Panel
                 ]);
             }
 
-            if (request()->is($admin_path . '/' . $modul->name . '/*/edit')) {
+            if ($request->is($admin_path . '/' . $modul->name . '/*/edit')) {
                 config([
                     'modules.current' => [
                         'post_type' => $modul->name,
@@ -50,7 +43,7 @@ class Panel
                     ]
                 ]);
             }
-            if (request()->is($admin_path . '/' . $modul->name . '/*/show')) {
+            if ($request->is($admin_path . '/' . $modul->name . '/*/show')) {
 
                 config([
                     'modules.current' => [
@@ -61,7 +54,7 @@ class Panel
             }
 
 
-            if (request()->is($admin_path . '/' . $modul->name . '/category/*/edit')) {
+            if ($request->is($admin_path . '/' . $modul->name . '/category/*/edit')) {
                 $title = 'Edit Kategori ' . $modul->title;
                 config([
                     'modules.current' => [
@@ -70,7 +63,7 @@ class Panel
                     ]
                 ]);
             }
-            if (request()->is($admin_path . '/' . $modul->name . '/category/create')) {
+            if ($request->is($admin_path . '/' . $modul->name . '/category/create')) {
                 $title = 'Tambah Kategori ' . $modul->title;
                 config([
                     'modules.current' => [
@@ -79,7 +72,7 @@ class Panel
                     ]
                 ]);
             }
-            if (request()->is($admin_path . '/' . $modul->name . '/category')) {
+            if ($request->is($admin_path . '/' . $modul->name . '/category')) {
                 $title = 'Kategori ' . $modul->title;
                 config([
                     'modules.current' => [
@@ -89,7 +82,7 @@ class Panel
                 ]);
             }
 
-            if (request()->is($admin_path . '/' . $modul->name . '/create')) {
+            if ($request->is($admin_path . '/' . $modul->name . '/create')) {
 
                 config([
                     'modules.current' => [
@@ -99,13 +92,9 @@ class Panel
                 ]);
             }
         }
-
         $response = $next($request);
         if ($response->headers->get('Content-Type') == 'text/html; charset=UTF-8') {
             $content = $response->getContent();
-            // Tambahkan atribut loading="lazy" ke semua tag <img>
-
-            // Gantikan semua src="" dengan data-src="" dan tambahkan atribut loading="lazy" dan class lazyload
             $content = preg_replace_callback('/<img\s+([^>]*?)src=["\']([^"\']*?)["\']([^>]*?)>/', function ($matches) {
                 $attributes = $matches[1] . 'data-src="' . $matches[2] . '" ' . $matches[3];
                 if (strpos($attributes, 'class="') !== false) {

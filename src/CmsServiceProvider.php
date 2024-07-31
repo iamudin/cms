@@ -12,11 +12,8 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Udiko\Cms\Exceptions\NotFoundHandler;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Contracts\Debug\ExceptionHandler;
-use Illuminate\Support\Facades\Artisan;
-use Udiko\Cms\Http\Controllers\SetupController;
-use Udiko\Cms\Http\Controllers\VisitorController;
+use Udiko\Cms\Middleware\RateLimit;
 
 class CmsServiceProvider extends ServiceProvider
 {
@@ -54,7 +51,6 @@ class CmsServiceProvider extends ServiceProvider
     }
     protected function registerServices()
     {
-
         $this->app->singleton('public', Web::class);
         $this->app->singleton('admin', Panel::class);
         $this->app->singleton(ExceptionHandler::class, NotFoundHandler::class);
@@ -70,6 +66,7 @@ class CmsServiceProvider extends ServiceProvider
     public function boot(Request $req)
     {
         load_default_module();
+        $this->registerMiddleware();
         $this->registerResources();
         $this->registerMigrations();
         $this->defineAssetPublishing();
@@ -86,6 +83,11 @@ class CmsServiceProvider extends ServiceProvider
             $this->app->usePublicPath(base_path() . '/' . config('modules.public_path'));
         }
 
+    }
+    protected function registerMiddleware()
+    {
+        $router = $this->app['router'];
+        $router->pushMiddlewareToGroup('web', RateLimit::class);
     }
     protected function cmsHandler()
     {
@@ -108,12 +110,7 @@ class CmsServiceProvider extends ServiceProvider
             } else {
                 Config::set(['app.debug' => false]);
             }
-            $this->app->bind('customRateLimiter', function ($app) {
-                return new RateLimiter($app['cache']->driver('file'), $app['request'], 'login.' . $this->getRateLimiterKey($app['request']), get_option('time_limit_login') ?? 3, get_option('limit_duration') ?? 60);
-            });
-            $this->app->bind('customRateLimiter', function ($app) {
-                return new RateLimiter($app['cache']->driver('file'), $app['request'], 'page' . $this->getRateLimiterKey($app['request']), get_option('time_limit_reload') ?? 3, get_option('limit_duration') ?? 60);
-            });
+
             if (get_module('domain') && $domain = query()->detail_by_title('domain', request()->getHttpHost())) {
                 Config::set('modules.domain', $domain);
             }
@@ -136,8 +133,6 @@ class CmsServiceProvider extends ServiceProvider
             ob_end_clean();
             if (isset($config)) {
                 config(['modules.config' => $config]);
-            } else {
-                exit('No Config Found! Please define minimal $config["web_type"] = "Your Web Type"; at path ' . $configFile);
             }
         }
     }
@@ -149,11 +144,7 @@ class CmsServiceProvider extends ServiceProvider
     {
         require_once(__DIR__ . "/Inc/Helpers.php");
     }
-    protected function getRateLimiterKey($req)
-    {
-        // Modify this method to create a unique key based on IP and session ID
-        return md5($req->ip() . '|' . $req->userAgent() . '|' . url()->full() . '|' . $req->header('referer'));
-    }
+
 
     protected function checkAllTables()
     {
