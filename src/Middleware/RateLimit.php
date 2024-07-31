@@ -105,7 +105,6 @@ class RateLimit
         }
 
         if(config('modules.current.detail_visited')){
-
         $ip = $request->ip();
         $sessionId = $request->session()->getId();
         $userAgent = $request->header('User-Agent');
