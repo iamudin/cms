@@ -10,11 +10,7 @@ if (!function_exists('query')) {
         return new \Udiko\Cms\Models\Post;
     }
 }
-if (!function_exists('req')) {
-    function request(){
-        return new Request;
-    }
-}
+
 
 if(!function_exists('isNotInSession')){
     function isNotInSession($request){
