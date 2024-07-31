@@ -89,7 +89,7 @@ class CmsServiceProvider extends ServiceProvider
         $router = $this->app['router'];
         $router->pushMiddlewareToGroup('web', RateLimit::class);
     }
-    protected function cmsHandler($request)
+    protected function cmsHandler()
     {
         Carbon::setLocale(config('app.locale'));
         Carbon::setFallbackLocale(config('app.fallback_locale'));
@@ -110,7 +110,7 @@ class CmsServiceProvider extends ServiceProvider
             } else {
                 Config::set(['app.debug' => false]);
             }
-            if (get_module('domain') && $domain = query()->detail_by_title('domain', $request->getHttpHost())) {
+            if (get_module('domain') && $domain = query()->detail_by_title('domain', req()->getHttpHost())) {
                 Config::set('modules.domain', $domain);
             }
             $this->loadTemplateConfig();
