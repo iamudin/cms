@@ -1,5 +1,4 @@
 <?php
-
 namespace Udiko\Cms\Middleware;
 use Closure;
 use Illuminate\Http\Request;

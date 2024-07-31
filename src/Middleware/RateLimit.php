@@ -1,10 +1,7 @@
 <?php
-
 namespace Udiko\Cms\Middleware;
-
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class RateLimit
@@ -18,7 +15,8 @@ class RateLimit
      */
     public function handle(Request $request, Closure $next)
     {
-        if(!config('modules.installed')){
+
+        if(!config('modules.installed') && strpos($request->fullUrl(), 'install') === false ){
             return redirect()->route('install');
         }
         $modules = collect(get_module())->where('name', '!=', 'halaman')->where('public', true);
@@ -128,7 +126,9 @@ class RateLimit
         Cache::put($key, Cache::get($key), now()->addMinutes($decayMinutes));
 
     }
+
     return $next($request);
+
     }
 
     protected function generateRateLimitKey($ip, $sessionId, $userAgent, $url, $referer)

@@ -1,17 +1,7 @@
 <?php
-
 namespace Udiko\Cms\Middleware;
-
 use Closure;
 use Illuminate\Http\Request;
-use Udiko\Cms\Models\Visitor;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\RateLimiter;
-use Udiko\Cms\Http\Controllers\VisitorController;
-
 class Panel
 {
     /**
