@@ -11,7 +11,7 @@ if (!function_exists('query')) {
     }
 }
 if (!function_exists('req')) {
-    function req(){
+    function request(){
         return new Request;
     }
 }
@@ -283,12 +283,12 @@ if (!function_exists('active_item')) {
     {
         if (is_array($val)) {
             foreach ($val as $r) {
-                if (req()->is(admin_path() . '/' . $r) || req()->is(admin_path() . '/' . $r . '/*') || req()->is(admin_path() . '/' . $r . '/*/*')) {
+                if (request()->is(admin_path() . '/' . $r) || request()->is(admin_path() . '/' . $r . '/*') || request()->is(admin_path() . '/' . $r . '/*/*')) {
                     return 'active';
                 }
             }
         } else {
-            if (req()->is(admin_path() . '/' . $val) || req()->is(admin_path() . '/' . $val . '/*') || req()->is(admin_path() . '/' . $val . '/*/*'))
+            if (request()->is(admin_path() . '/' . $val) || request()->is(admin_path() . '/' . $val . '/*') || request()->is(admin_path() . '/' . $val . '/*/*'))
                 return 'active';
         }
     }
@@ -800,34 +800,34 @@ if (!function_exists('init_meta_header')) {
             $data['site_keyword'] = $site_meta_keyword;
             return \Illuminate\Support\Facades\View::make('cms::layouts.seo', set_header_seo($data));
         } else {
-            $page = req()->page ? ' Halaman ' . req()->page : '';
+            $page = request()->page ? ' Halaman ' . request()->page : '';
 
-            if (get_post_type() && !req()->is('search/*') && !req()->is('/')) {
+            if (get_post_type() && !request()->is('search/*') && !request()->is('/')) {
 
-                if (req()->segment(2) == 'archive') {
+                if (request()->segment(2) == 'archive') {
                     $pn = $get_page_name . $page;
-                } elseif (req()->segment(2) == 'category') {
+                } elseif (request()->segment(2) == 'category') {
                     $pn = $get_page_name . $page;
                 } elseif (get_module(get_post_type())->form->post_parent) {
                     $pn = $get_page_name . $page;
                 } else {
                     $pn = $get_page_name . $page;
                 }
-            } elseif (req()->is('search/*')) {
-                $pn = 'Hasil Pencarian  "' . ucwords(str_replace('-', ' ', req()->slug)) . '"' . $page;
-            } elseif (req()->is('author') || req()->is('author/*')) {
+            } elseif (request()->is('search/*')) {
+                $pn = 'Hasil Pencarian  "' . ucwords(str_replace('-', ' ', request()->slug)) . '"' . $page;
+            } elseif (request()->is('author') || request()->is('author/*')) {
                 $pn = $get_page_name . $page;
-            } elseif (req()->is('tags/*')) {
+            } elseif (request()->is('tags/*')) {
                 $pn = $get_page_name . $page;
             } else {
                 $pn = null;
             }
             $data = [
                 'description' => $pn ? 'Lihat ' . $pn . ' di ' . $site_title : $site_meta_description,
-                'title' => $pn ? $pn : (!req()->is('/') ? 'Halaman Tidak Ditemukan' : $site_title . ($site_desc ? ' - ' . $site_desc : '')),
+                'title' => $pn ? $pn : (!request()->is('/') ? 'Halaman Tidak Ditemukan' : $site_title . ($site_desc ? ' - ' . $site_desc : '')),
                 'keywords' => $site_meta_keyword,
                 'thumbnail' => url(get_option('preview') ?? noimage()),
-                'url' => req()->fullUrl(),
+                'url' => request()->fullUrl(),
             ];
 
             return \Illuminate\Support\Facades\View::make('cms::layouts.seo', $data ?? [null]);
@@ -950,7 +950,7 @@ if (!function_exists('paginate')) {
     {
 
         $perPage = get_option('post_perpage');
-        $page = req()->page ?: (\Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1);
+        $page = request()->page ?: (\Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1);
         $items = $items instanceof \Illuminate\Support\Collection ? $items : \Illuminate\Support\Collection::make($items);
         return new \Illuminate\Pagination\LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, ['path' => URL::current()]);
     }
@@ -1016,7 +1016,7 @@ if (!function_exists('upload_media')) {
                     'type' => 'media',
                     'parent_type' => $parent_type,
                     'status' => 'publish',
-                    'user_id' => req()->user()->id,
+                    'user_id' => request()->user()->id,
                 ]
             );
             if ($result->media) {
@@ -1110,7 +1110,7 @@ function put_image($src, $path)
 if (!function_exists('admin_only')) {
     function admin_only()
     {
-        return req()->user()->level != 'admin' ? redirect()->to(admin_path() . '/dashboard')->send()->with('danger', 'Akses Terbatas untuk administrator') : true;
+        return request()->user()->level != 'admin' ? redirect()->to(admin_path() . '/dashboard')->send()->with('danger', 'Akses Terbatas untuk administrator') : true;
     }
 }
 if (!function_exists('_tohref')) {
@@ -1142,7 +1142,7 @@ if (!function_exists('get_ip_info')) {
     function get_ip_info()
     {
         if (config('app.env') == 'production') {
-            $data = \Stevebauman\Location\Facades\Location::get(req()->ip());
+            $data = \Stevebauman\Location\Facades\Location::get(request()->ip());
             return $data ? json_encode(['countryCode' => str($data->countryCode)->lower(), 'country' => $data->countryName, 'city' => $data->cityName, 'region' => $data->regionName]) : json_encode(array());
         } else {
             return NULL;
@@ -1153,7 +1153,7 @@ if (!function_exists('make_custom_view')) {
     function make_custom_view($id, $content)
     {
         $data = $content;
-        $path = resource_path('views/custom_view/' . _us(req()->getHost()));
+        $path = resource_path('views/custom_view/' . _us(request()->getHost()));
         if (!is_dir($path)) {
             mkdir($path);
         }
@@ -1166,19 +1166,19 @@ if (!function_exists('make_custom_view')) {
 if (!function_exists('get_custom_view')) {
     function get_custom_view($id)
     {
-        foreach ([0 => resource_path('views/custom_view'), 1 => resource_path('views/custom_view/' . _us(req()->getHost()))] as $k => $row) {
+        foreach ([0 => resource_path('views/custom_view'), 1 => resource_path('views/custom_view/' . _us(request()->getHost()))] as $k => $row) {
             if (!is_dir($row)) {
                 mkdir($row);
                 if ($k == 1) {
-                    file_put_contents(resource_path('views/custom_view/' . _us(req()->getHost()) . '/' . $id . '.blade.php'), '<html></html>');
+                    file_put_contents(resource_path('views/custom_view/' . _us(request()->getHost()) . '/' . $id . '.blade.php'), '<html></html>');
                 }
             }
         }
 
 
-        $file = resource_path('views/custom_view/' . _us(req()->getHost()) . '/' . $id . '.blade.php');
+        $file = resource_path('views/custom_view/' . _us(request()->getHost()) . '/' . $id . '.blade.php');
         if (!file_exists($file)) {
-            file_put_contents(resource_path('views/custom_view/' . _us(req()->getHost()) . '/' . $id . '.blade.php'), '<html></html>');
+            file_put_contents(resource_path('views/custom_view/' . _us(request()->getHost()) . '/' . $id . '.blade.php'), '<html></html>');
         }
 
         $fn = fopen($file, "r");
@@ -1379,6 +1379,6 @@ if (!function_exists('getRateLimiterKey')) {
     function getRateLimiterKey($req)
     {
         // Modify this method to create a unique key based on IP and session ID
-        return md5($req->ip() . '|' . $req->userAgent() . '|' . req()->fullUrl() . '|' . $req->header('referer'));
+        return md5($req->ip() . '|' . $req->userAgent() . '|' . request()->fullUrl() . '|' . $req->header('referer'));
     }
 }
