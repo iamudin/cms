@@ -1,16 +1,11 @@
-@extends('cms::backend.layout.app',['title'=> $tag? 'Edit Tag':'Tambah Tag'])
-@section('content')
-<div class="row">
-<div class="col-lg-12 mb-3">
-  <h3 style="font-weight:normal;float:left"><i class="fa fa-tags" aria-hidden="true"></i> {{ $tag? 'Edit Tag':'Tambah Tag' }}
-</h3>
-<div class="pull-right">
-    @if(Route::has('tag'))
-    <a href="{{route('tag')}}" class="btn btn-outline-danger btn-sm"> <i class="fa fa-undo" aria-hidden></i> Batal</a>
-    @endif
-</div>
-</div>
-<div class="col-lg-12">
+<div class="tile">
+    <h4>
+        @if(!$tag)
+        <i class="fa fa-plus"></i> Tambah
+        @else
+        <i class="fa fa-edit"></i> Edit
+        @endif
+    </h4>
     @if ($tag)
     <div style="border-left:3px solid green" class="alert alert-success"><b>URL : </b><a
             title="Kunjungi URL" data-toggle="tooltip" href="{{ url($tag->url) }}"
@@ -19,7 +14,7 @@
             class="pointer copy pull-right badge badge-primary" data-copy="{{ url($tag->url) }}"><i
                 class="fa fa-copy" aria-hidden></i> <b>Salin</b></span></div>
 @endif
-@include('cms::backend.layout.error')
+
         <form autocomplete="off" action="{{ $tag ?  route('tag.update',$tag->id): route('tag.store')}}" method="post" enctype="multipart/form-data">
             @csrf
             @if($tag)
@@ -36,12 +31,22 @@
             </div>
 
             <div class="form-group mt-2  mb-2 text-right">
-                <button type="submit" class="btn btn-primary btn-sm"> <i class="fa fa-save"></i> Simpan</button>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    @if(!$tag)
+                    <i class="fa fa-plus"></i> Tambah
+                    @else
+                    <i class="fa fa-save"></i> Simpan
+                    @endif
+                   </button>
+                   @if($tag)
+                   <a href="{{ route('tag') }}" class="btn btn-danger btn-sm">
+                       <i class="fa fa-undo"></i> Batal
+
+                      </a>
+                    @endif
             </div>
 </form>
-</div>
 </div>
 @push('scripts')
 @include('cms::backend.layout.js')
 @endpush
-@endsection

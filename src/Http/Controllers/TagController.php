@@ -18,7 +18,7 @@ class TagController extends Controller implements HasMiddleware
         ];
     }
     public function index(){
-        return view('cms::backend.tags.index');
+        return view('cms::backend.tags.index',['tag'=>null]);
     }
     public function datatable(Request $request)
     {
@@ -40,7 +40,7 @@ class TagController extends Controller implements HasMiddleware
             ->toJson();
 }
     public function edit(Tag $tag){
-        return view('cms::backend.tags.form',['tag'=>$tag]);
+        return view('cms::backend.tags.index',['tag'=>$tag]);
     }
     public function create(){
         return view('cms::backend.tags.form',['tag'=>'']);

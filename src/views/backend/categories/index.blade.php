@@ -5,15 +5,15 @@
   <h3 style="font-weight:normal;float:left"><i class="fa {{get_module_info('icon')}}" aria-hidden="true"></i> {{get_post_type('title_crud')}}
 </h3>
 <div class="pull-right">
-    @if(Route::has(get_post_type().'.category.create'))
-    <a href="{{route(get_post_type().'.category.create')}}" class="btn btn-outline-primary btn-sm"> <i class="fa fa-plus" aria-hidden></i> Tambah</a>
-    @endif
-    @if(Route::has(get_post_type().'.category.create'))
+
     <a href="{{route(get_post_type())}}" class="btn btn-outline-danger btn-sm"> <i class="fa fa-undo" aria-hidden></i> Kembali</a>
-    @endif
 </div>
 </div>
-<div class="col-lg-12">
+<div class="col-lg-4">
+@include('cms::backend.layout.error')
+@include('cms::backend.categories.form')
+</div>
+<div class="col-lg-8">
 
 <table class="display table table-hover table-bordered datatable" style="background:#f7f7f7;width:100%">
 <thead style="text-transform:uppercase;color:#444">
@@ -21,7 +21,7 @@
 
     <th style="width:5px;vertical-align: middle">NO</th>
     <th style="vertical-align: middle">Nama</th>
-    <th style="width:100px;vertical-align: middle">Jumlah Data</th>
+    <th style="width:100px;vertical-align: middle">Data</th>
     <th style="width:15px;vertical-align: middle">Aksi</th>
   </tr>
 </thead>

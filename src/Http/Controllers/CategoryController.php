@@ -18,7 +18,7 @@ class CategoryController extends Controller implements HasMiddleware
     public function index(Request $request)
     {
         $request->user()->hasRole('category'.get_post_type(),__FUNCTION__);
-        return view('cms::backend.categories.index');
+        return view('cms::backend.categories.index',['category'=>null]);
     }
     public function datatable(Request $request)
     {
@@ -40,9 +40,7 @@ class CategoryController extends Controller implements HasMiddleware
             ->toJson();
 }
 public function create(Request $request){
-    $request->user()->hasRole('category'.get_post_type(),__FUNCTION__);
-
-    return view('cms::backend.categories.form',['category'=>null]);
+   return to_route(get_post_type().'.category');
 }
 public function store(Request $request){
     $request->user()->hasRole('category'.get_post_type(),'create');
@@ -61,11 +59,11 @@ public function store(Request $request){
     if($request->hasFile('icon')){
         $data->update(['icon'=>upload_media($data,$request->file('icon'),'category_icon','category')]);
     }
-    return to_route(get_post_type().'.category.edit',$data->id)->with('success','Kategori '.current_module()->title.' berhasil ditambah');
+    return back()->with('success','Kategori '.current_module()->title.' berhasil ditambah');
 }
 public function edit(Request $request,Category $category){
     $request->user()->hasRole('category'.get_post_type(),'update');
-    return view('cms::backend.categories.form',['category'=>$category]);
+    return view('cms::backend.categories.index',['category'=>$category]);
 }
 public function update(Request $request, Category $category){
     $request->user()->hasRole('category'.get_post_type(),'update');
@@ -84,7 +82,7 @@ public function update(Request $request, Category $category){
     if($request->hasFile('icon')){
         $category->update(['icon'=>upload_media($category,$request->file('icon'),'category_icon','category')]);
     }
-    return to_route(get_post_type().'.category.edit',$category->id)->with('success','Kategori '.current_module()->title.' berhasil ditambah');
+    return to_route(get_post_type().'.category')->with('success','Kategori '.current_module()->title.' berhasil ditambah');
 }
 public function destroy(Request $request,Category $category){
     $request->user()->hasRole('category'.get_post_type(),'delete');
