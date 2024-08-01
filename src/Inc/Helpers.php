@@ -15,7 +15,7 @@ if (!function_exists('query')) {
 if(!function_exists('isNotInSession')){
     function isNotInSession($request){
         $user = $request->user();
-        if(md5(md5($request->session()->id())) != $user->active_session){
+        if($user && md5(md5($request->session()->id())) != $user?->active_session){
             \Illuminate\Support\Facades\Auth::logout($request->user());
             $user->update(['active_session'=>null]);
             return to_route('login')->with('error','Session is expired or another user was logged your account!')->send();
