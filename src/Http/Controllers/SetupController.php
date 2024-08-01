@@ -193,7 +193,7 @@ class SetupController extends Controller
             ['name' => 'instagram', 'value' => null, 'autoload' => 1],
             ['name' => 'comment_status', 'value' => 0, 'autoload' => 1],
             ['name' => 'home_page', 'value' => 'default', 'autoload' => 1],
-            ['name' => 'preview', 'value' => 'default', 'autoload' => 1],
+            ['name' => 'preview', 'value' => 'noimage.webp', 'autoload' => 1],
             ['name' => 'icon', 'value' => 'noimage.webp', 'autoload' => 1],
         );
 

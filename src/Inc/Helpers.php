@@ -820,7 +820,7 @@ if (!function_exists('init_meta_header')) {
             }
             $data = [
                 'description' => $pn ? 'Lihat ' . $pn . ' di ' . $site_title : $site_meta_description,
-                'title' => $pn ? $pn : (!request()->is('/') ? 'Halaman Tidak Ditemukan' : $site_title . ($site_desc ? ' - ' . $site_desc : '')),
+                'title' => $pn ? $pn : (!request()->is('/') ? 'Halaman Tidak Ditemukan' : $site_title),
                 'keywords' => $site_meta_keyword,
                 'thumbnail' => url(get_option('preview') ?? noimage()),
                 'url' => request()->fullUrl(),
@@ -830,14 +830,7 @@ if (!function_exists('init_meta_header')) {
         }
     }
 }
-// if (!function_exists('get_menu')) {
 
-//     function get_menu($name)
-//     {
-//         // Mengambil menu dari cache
-//         return new \Udiko\Cms\Inc\Menu($name);
-//     }
-// }
 if (!function_exists('get_menu')) {
     function get_menu($name,$id=false)
     {
@@ -847,78 +840,7 @@ if (!function_exists('get_menu')) {
         return collect([]);
     }
 }
-if (!function_exists('kaedah')) {
-    function kaedah()
-    {
-        return array(
-            [
-                'position' => 1,
-                'name' => 'berita',
-                'title' => 'Berita',
-                'description' => 'Menu Untuk Mengelola Berita',
-                'parent' => false,
-                'icon' => 'fa-newspaper-o',
-                'data_title' => 'Judul Berita',
-                'custom_column' => false,
-                'post_parent' => false,
-                'custom_field' => array(
-                    ['Reporter', 'text'],
-                    ['Tanggal Entry', 'text']
-                ),
-                'looping' => false,
-                'looping_data' => false,
-                'looping_for' => 'Di Isi Hanya Untuk Kecamatan',
-                'thumbnail' => true,
-                'editor' => true,
-                'group' => true,
-                'api' => true,
-                'archive' => true,
-                'index' => true,
-                'detail' => true,
-                'operator' => true,
-                'public' => true,
-                'history' => true,
-                'auto_query' => false,
-                'auto_load' => true,
-                'active' => true,
 
-            ],
-            [
-                'position' => 2,
-                'name' => 'agenda',
-                'title' => 'Agenda',
-                'description' => 'Menu Untuk Mengelola Agenda',
-                'parent' => false,
-                'icon' => 'fa-calendar',
-                'data_title' => 'Nama Agenda',
-                'custom_column' => false,
-                'post_parent' => false,
-                'custom_field' => array(
-                    ['Tanggal', 'date', 'required'],
-                    ['Tempat', 'text', 'required'],
-                    ['Alamat', 'text']
-                ),
-                'looping' => false,
-                'looping_data' => false,
-                'looping_for' => 'Silahkan Isi Lampiran',
-                'thumbnail' => false,
-                'editor' => false,
-                'group' => false,
-                'api' => false,
-                'archive' => false,
-                'index' => true,
-                'detail' => true,
-                'operator' => false,
-                'public' => true,
-                'history' => false,
-                'auto_query' => false,
-                'auto_load' => true,
-                'active' => true,
-
-            ]
-        );
-    }
-}
 
 if (!function_exists('load_default_module')) {
     function load_default_module()

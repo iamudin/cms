@@ -11,7 +11,7 @@
 <meta name="robots" content="all" />
 <meta property="og:url" content="{{$url ?? url('/')}}" />
 <meta property="og:type" content="article" />
-<meta property="og:title" content="{{$title ?? 'Web'}}" />
+<meta property="og:title" content="{{$title ?? 'Web Title'}}" />
 <meta property="og:image" content="{{$thumbnail ?? noimage()}}" />
 <meta property="og:site_name" content="{{get_option('site_title') ?? 'Web'}}" />
 <meta property="og:description" content="{{ $description ?? 'The Website By Laravel'}}" />
