@@ -15,7 +15,7 @@
                 },
                 onMediaDelete: function(target) {
                     deleteImage(target[0].src);
-                }
+                },
 
 
             },
@@ -25,7 +25,7 @@
                 figureClass: 'figureClass',
                 figcaptionClass: 'captionClass',
                 captionText: 'Caption Goes Here.',
-                manageAspectRatio: false 
+                manageAspectRatio: false
             },
             lang: 'en-US',
             popover: {
@@ -64,13 +64,18 @@
     });
 
     function uploadImage(file) {
-        var placeholderImageUrl = '/backend/images/load.gif';
+        if (file) {
+            var allowedTypes = ['image/jpeg', 'image/png','image/gif'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Pilih hanya format gambar: jpg,png atau gif.');
+            }else{
+                var placeholderImageUrl = '/backend/images/load.gif';
         $('#editor').summernote('editor.insertImage', placeholderImageUrl);
         var data = new FormData();
         data.append("file", file);
         data.append("_token", "{{ csrf_token() }}");
         $.ajax({
-            url: "{{ route('media.imagesummernoteupload') }}", 
+            url: "{{ route('media.imagesummernoteupload') }}",
             type: 'POST',
             data: data,
             contentType: false,
@@ -78,13 +83,18 @@
             success: function(response) {
                 var actualImageUrl = response.url;
                 var alls = $('#editor').summernote("code");
-                $('#editor').summernote("code",alls.replace(placeholderImageUrl,actualImageUrl));
+                $('#editor').summernote("code", alls.replace(placeholderImageUrl, actualImageUrl));
 
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 console.error('Error uploading image: ', textStatus, errorThrown);
             }
         });
+            }
+        }
+
+
+
     }
 
     function deleteImage(src) {
