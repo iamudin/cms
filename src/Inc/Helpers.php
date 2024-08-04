@@ -1,8 +1,9 @@
 <?php
 
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 
 if (!function_exists('query')) {
     function query()
@@ -12,25 +13,27 @@ if (!function_exists('query')) {
 }
 
 
-if(!function_exists('isNotInSession')){
-    function isNotInSession($request){
+if (!function_exists('isNotInSession')) {
+    function isNotInSession($request)
+    {
         $user = $request->user();
-        if($user && md5(md5($request->session()->id())) != $user?->active_session){
+        if ($user && md5(md5($request->session()->id())) != $user?->active_session) {
             \Illuminate\Support\Facades\Auth::logout($request->user());
-            $user->update(['active_session'=>null]);
-            return to_route('login')->with('error','Session is expired or another user was logged your account!')->send();
+            $user->update(['active_session' => null]);
+            return to_route('login')->with('error', 'Session is expired or another user was logged your account!')->send();
         }
     }
 }
 
 
-if(!function_exists('forbidden')){
-    function forbidden($request){
+if (!function_exists('forbidden')) {
+    function forbidden($request)
+    {
         if (get_option('forbidden_keyword') && str()->contains(str($request->fullUrl())->lower(), explode(",", str_replace(" ", "", get_option('forbidden_keyword') ?? '')))) {
             $redirect = get_option('forbidden_redirect');
-            if (!empty($redirect) && str($redirect)->isUrl()){
+            if (!empty($redirect) && str($redirect)->isUrl()) {
                 return redirect($redirect);
-            }else{
+            } else {
                 abort(403);
             }
         }
@@ -39,7 +42,7 @@ if(!function_exists('forbidden')){
         }
     }
 }
-if(!function_exists('processVisitorData')){
+if (!function_exists('processVisitorData')) {
     function processVisitorData()
     {
 
@@ -58,7 +61,8 @@ if(!function_exists('processVisitorData')){
     }
 }
 if (!function_exists('ratelimiter')) {
-    function ratelimiter($request,$limittime){
+    function ratelimiter($request, $limittime)
+    {
         $ip = $request->ip();
         $sessionId = $request->session()->getId();
         $userAgent = $request->header('User-Agent');
@@ -72,7 +76,7 @@ if (!function_exists('ratelimiter')) {
         if (Cache::has($key)) {
             $attempts = cache::get($key);
             if ($attempts >= $maxAttempts) {
-                return abort( 429);
+                return abort(429);
             }
         }
         Cache::increment($key);
@@ -298,7 +302,7 @@ if (!function_exists('admin_url')) {
 if (!function_exists('regenerate_cache')) {
     function regenerate_cache()
     {
-        $post_type = collect(config('modules.used'))->where('active',true)->where('public', true)->where('cache', true)->pluck('name')->toArray();
+        $post_type = collect(config('modules.used'))->where('active', true)->where('public', true)->where('cache', true)->pluck('name')->toArray();
         foreach ($post_type as $row) {
             $with = null;
 
@@ -317,6 +321,15 @@ if (!function_exists('regenerate_cache')) {
                 });
             }
         }
+    }
+}
+if (!function_exists('selfEmbeder')) {
+    function selfEmbeder($request)
+    {
+        if(\Illuminate\Support\Facades\Session::has('selfembed')){
+            return true;
+        }
+
     }
 }
 if (!function_exists('recache_option')) {
@@ -422,8 +435,7 @@ if (!function_exists('get_option')) {
 if (!function_exists('admin_path')) {
     function admin_path()
     {
-     return get_option('admin_path') ?? 'admin';
-        ;
+        return get_option('admin_path') ?? 'admin';;
     }
 }
 
@@ -832,12 +844,30 @@ if (!function_exists('init_meta_header')) {
 }
 
 if (!function_exists('get_menu')) {
-    function get_menu($name,$id=false)
+    function get_menu($name)
     {
-        $menu = \Illuminate\Support\Facades\Cache::get('menu')[$name] ?? null;
-        if ($menu)
-            return $id ? collect(json_decode(json_encode($menu)))->where('menu_parent', $id) : collect(json_decode(json_encode($menu)))->where('menu_parent', 0);
-        return collect([]);
+        $menu = \Illuminate\Support\Facades\Cache::get('menu')[$name] ?? [];
+        $menuIndex = [];
+        foreach ($menu as $item) {
+            $menuIndex[$item['menu_id']] = [
+                'id' => (int)$item['menu_id'],
+                'name' => $item['menu_name'],
+                'icon' => $item['menu_icon'],
+                'url' => link_menu($item['menu_link']),
+                'parent' => $item['menu_parent'],
+                'description' => $item['menu_description'],
+                'sub' => [],
+            ];
+        }
+        $menuTree = [];
+        foreach ($menuIndex as $id => &$item) {
+            if ($item['parent'] == 0) {
+                $menuTree[] = &$item;
+            } else {
+                $menuIndex[$item['parent']]['sub'][] = &$item;
+            }
+        }
+        return collect(json_decode(json_encode($menuTree)));
     }
 }
 
@@ -919,7 +949,7 @@ if (!function_exists('allow_mime')) {
 if (!function_exists('media_exists')) {
     function media_exists($media)
     {
-        $media_exists =  \Illuminate\Support\Facades\Cache::get('media')[basename($media)]??null;
+        $media_exists =  \Illuminate\Support\Facades\Cache::get('media')[basename($media)] ?? null;
         return $media_exists && \Illuminate\Support\Facades\Storage::exists($media_exists['media']) ? true : false;
     }
 }
@@ -966,13 +996,13 @@ if (!function_exists('recache_media')) {
         \Illuminate\Support\Facades\Cache::forget('media');
         \Illuminate\Support\Facades\Cache::rememberForever('media', function () {
             return \Udiko\Cms\Models\Post::where('status', 'publish')
-            ->where('type', 'media')
-            ->select('slug', 'mime', 'media')
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item['slug'] => ['mime' => $item['mime'], 'media' => $item['media']]];
-            })
-            ->toArray();
+                ->where('type', 'media')
+                ->select('slug', 'mime', 'media')
+                ->get()
+                ->mapWithKeys(function ($item) {
+                    return [$item['slug'] => ['mime' => $item['mime'], 'media' => $item['media']]];
+                })
+                ->toArray();
         });
     }
 }
@@ -980,26 +1010,26 @@ if (!function_exists('recache_banner')) {
     function recache_banner()
     {
         $posts = \Udiko\Cms\Models\Post::with('category')
-        ->where('type', 'banner')
-        ->where('status', 'publish')
-        ->select('media','redirect_to', 'title','category_id') // Pastikan 'category_id' dipilih untuk relasi
-        ->get();
+            ->where('type', 'banner')
+            ->where('status', 'publish')
+            ->select('media', 'redirect_to', 'title', 'category_id') // Pastikan 'category_id' dipilih untuk relasi
+            ->get();
 
-    // Group by category name and map the results
-    $result = $posts->groupBy('category.slug') // Asumsikan 'name' adalah atribut pada model kategori
-        ->mapWithKeys(function ($items, $categoryName) {
-            return [
-                $categoryName => $items->map(function ($item) {
-                    return [
-                        'image' => $item->media,
-                        'name' => $item->title,
-                        'link' => $item->redirect_to,
-                    ];
-                })->toArray()
-            ];
-        })->toArray();
+        // Group by category name and map the results
+        $result = $posts->groupBy('category.slug') // Asumsikan 'name' adalah atribut pada model kategori
+            ->mapWithKeys(function ($items, $categoryName) {
+                return [
+                    $categoryName => $items->map(function ($item) {
+                        return [
+                            'image' => $item->media,
+                            'name' => $item->title,
+                            'link' => $item->redirect_to,
+                        ];
+                    })->toArray()
+                ];
+            })->toArray();
         \Illuminate\Support\Facades\Cache::forget('banner');
-        \Illuminate\Support\Facades\Cache::rememberForever('banner', function () use($result) {
+        \Illuminate\Support\Facades\Cache::rememberForever('banner', function () use ($result) {
             return $result;
         });
     }
@@ -1009,7 +1039,7 @@ if (!function_exists('recache_menu')) {
     {
         \Illuminate\Support\Facades\Cache::forget('menu');
         \Illuminate\Support\Facades\Cache::rememberForever('menu', function () {
-            return \Udiko\Cms\Models\Post::whereType('menu')->whereStatus('publish')->select('slug', 'data_loop')->pluck('data_loop','slug')->toArray();
+            return \Udiko\Cms\Models\Post::whereType('menu')->whereStatus('publish')->select('slug', 'data_loop')->pluck('data_loop', 'slug')->toArray();
         });
     }
 }
@@ -1037,24 +1067,64 @@ if (!function_exists('_tohref')) {
         return '<a target="_blank" href="' . strip_tags($href) . '">' . $val . '</a>';
     }
 }
-if (!function_exists('get_banner')) {
-    function get_banner($position, $limit = 1, $start_tag = false, $end_tag = false)
+if (!function_exists('banner_here')) {
+    function banner_here($name,$data)
     {
-        $cek =\Illuminate\Support\Facades\Cache::get('banner')[$position] ?? null;
-
-        if (!empty($cek)) {
-            if (!$start_tag && !$end_tag) {
-                if ($limit > 1) {
-                    $banner = json_decode(json_encode(collect($cek)->take($limit)));
-                } else {
-                    $banner = json_decode(json_encode(collect($cek)->first()));
-                }
-                return $banner;
-            }
-        }
-            return $cek;
+        return selfEmbeder(request()) ? View::make('cms::layouts.banner',['banner'=>$name,'data'=>$data]) : null;
     }
 }
+if (!function_exists('get_banner')) {
+    function get_banner($name, $limit = 1)
+    {
+        if ($cek = \Illuminate\Support\Facades\Cache::get('banner')[$name] ?? null) {
+            $result =  collect(json_decode(json_encode($cek)));
+            if ($limit > 1) {
+                $res = $result->take($limit);
+                $banner = array();
+                foreach ($res as $r) {
+                    $a['image'] = $r->image ?? noimage();
+                    $a['link'] = $r->link;
+                    $a['name'] = $r->name;
+                    $banner[] = $a;
+                }
+            } else {
+                $res = $result->first();
+                $a['image'] = $res->image ?? noimage();
+                $a['link'] = $res->link;
+                $a['name'] = $res->name;
+                $banner = $a;
+            }
+            return json_decode(json_encode($banner));
+        } else {
+            return $limit > 1 ? [] : null;
+        }
+    }
+}
+if (!function_exists('banner_here')) {
+    function banner_here($name)
+    {
+    }
+}
+if (!function_exists('get_banner')) {
+    function get_banner($params)
+    {
+        $data['name'] = $params['name'] ?? null;
+        $data['limit'] = $params['limit'] ?? 1;
+
+        if ($data['name'] && $cek = \Illuminate\Support\Facades\Cache::get('banner')[$data['name']] ?? null) {
+            $data['result'] =  collect(json_decode(json_encode($cek)));
+            if ($data['limit'] > 1) {
+                $banner = $data['result']->take($data['limit']);
+            } else {
+                $banner = $data['result']->first();
+            }
+            return $banner;
+        } else {
+            return $data['limit'] > 1 ? [] : noimage();
+        }
+    }
+}
+
 
 if (!function_exists('get_ip_info')) {
     function get_ip_info()

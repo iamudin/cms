@@ -18,9 +18,5 @@ class Category extends Model
     {
         return $this->hasMany(Post::class, 'parent_id', 'id')->whereType('media');
     }
-    // public function getRouteKeyName()
-    // {
-    //     return 'slug';
-    // }
 
 }

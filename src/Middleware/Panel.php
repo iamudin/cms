@@ -94,7 +94,9 @@ class Panel
                 }
                 return '<img ' . $attributes . ' src="/shimmer.gif">';
             }, $content);
-            $content = preg_replace('/\s+/', ' ', $content);
+            if(get_option('site_maintenance')=='N'){
+                $content = preg_replace('/\s+/', ' ', $content);
+            }
             $response->setContent($content);
         }
         return $response;

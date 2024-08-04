@@ -16,6 +16,7 @@ use Udiko\Cms\Models\Category;
 use Udiko\Cms\Http\Controllers\MediaController;
 use Illuminate\Support\Facades\Route;
 use Carbon\Carbon;
+use PhpParser\Node\Stmt\Break_;
 
 class PostController extends Controller implements HasMiddleware
 {
@@ -127,12 +128,21 @@ return view('cms::backend.posts.form',[
 public function destroy(Request $request,Post $post){
     $request->user()->hasRole(get_post_type(),'delete');
     if($post->medias->count()){
-        Post::whereParentId($post->id)->delete();
+        Post::whereParentId($post->id)->whereParentType('post')->whereType('media')->delete();
         recache_media();
     }
     $post->delete();
-    regenerate_cache(get_post_type());
-
+    switch(get_post_type()){
+        case 'banner':
+        recache_banner();
+        break;
+        case 'menu':
+        recache_menu();
+        break;
+        default:
+        regenerate_cache();
+        break;
+    }
 }
 public function show(Post $post,$id){
 abort_if(!is_numeric($id),'403');
@@ -277,7 +287,7 @@ public function recache($type){
 }
     public function datatable(Request $req)
     {
-        $data = $req->user()->isAdmin() ? Post::select(array_merge((new Post)->selected,['data_loop']))->with('user', 'category', 'comments')->withCount('child')->withCount('visitors')->whereType(get_post_type()) : Post::select((new Post)->selected)->with('user', 'category', 'comments')->withCount('child')->withCount('visitors')->whereType(get_post_type())->whereBelongsTo($req->user());
+        $data = $req->user()->isAdmin() ? Post::select(array_merge((new Post)->selected,['data_loop']))->with('user', 'category', 'comments')->withCount('childs')->withCount('visitors')->whereType(get_post_type()) : Post::select((new Post)->selected)->with('user', 'category', 'comments')->withCount('childs')->withCount('visitors')->whereType(get_post_type())->whereBelongsTo($req->user());
         return DataTables::of($data)
             ->addIndexColumn()
             ->order(function ($query) use ($req) {
@@ -345,7 +355,7 @@ public function recache($type){
                 $btn .= $row->type=='media' && $row->id == $row->parent_id ? '<button title="Hapus Media" class="btn btn-sm btn-danger fa fa-trash" onclick="deleteAlert(\''.basename($row->media).'\')"></button>' : '';
 
 
-                $btn .= ($row->type != 'media' && Route::has($row->type . '.destroyer') && empty($row->child_count)) ? ($row->type == 'menu' && !empty($row->data_loop) ? '': '<button onclick="deleteAlert(\''.route($row->type.'.destroyer',$row->id).'\')" class="btn btn-danger btn-sm fa fa-trash"></button>' ) :'';
+                $btn .= ($row->type != 'media' && Route::has($row->type . '.destroyer') && empty($row->childs_count)) ? ($row->type == 'menu' && !empty($row->data_loop) ? '': '<button onclick="deleteAlert(\''.route($row->type.'.destroyer',$row->id).'\')" class="btn btn-danger btn-sm fa fa-trash"></button>' ) :'';
                 $btn .= '</div></div>';
                 return $btn;
             })

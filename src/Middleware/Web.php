@@ -27,12 +27,8 @@ class Web
             return undermaintenance();
         }
         processVisitorData();
-
         if ($response->headers->get('Content-Type') == 'text/html; charset=UTF-8') {
             $content = $response->getContent();
-            // Tambahkan atribut loading="lazy" ke semua tag <img>
-
-            // Gantikan semua src="" dengan data-src="" dan tambahkan atribut loading="lazy" dan class lazyload
             $content = preg_replace_callback('/<img\s+([^>]*?)src=["\']([^"\']*?)["\']([^>]*?)>/', function ($matches) {
                 $attributes = $matches[1] . 'data-src="' . $matches[2] . '" ' . $matches[3];
                 if (strpos($attributes, 'class="') !== false) {
@@ -42,17 +38,19 @@ class Web
                 }
                 return '<img ' . $attributes . ' src="/shimmer.gif">';
             }, $content);
-            $content = preg_replace('/\s+/', ' ', $content);
+            if(get_option('site_maintenance')=='N'){
+                $content = preg_replace('/\s+/', ' ', $content);
+            }
             $response->setContent($content);
         }
-        $this->securityHeaders($response);
+        $this->securityHeaders($response,$request);
         return $response;
     }
 
-    function securityHeaders($response){
+    function securityHeaders($response,$request){
             $response->headers->set('X-Content-Type-Options', 'nosniff');
 
-        if(get_option('frame_embed') && get_option('frame_embed')=='Y'){
+        if(get_option('frame_embed') && get_option('frame_embed')=='Y' && !selfEmbeder($request)){
         // Set X-Frame-Options Header
         $response->headers->set('X-Frame-Options', 'DENY');
          }

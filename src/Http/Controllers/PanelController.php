@@ -188,10 +188,13 @@ class PanelController extends Controller implements HasMiddleware
                 }
             }
             recache_option();
+            Artisan::call('optimize');
             return  back()->with('success', 'Berhasil disimpan');
         }
         return view('cms::backend.setting',$data);
 
     }
-
+public function appearance(Request $request){
+return view('cms::backend.appearance');
+}
 }

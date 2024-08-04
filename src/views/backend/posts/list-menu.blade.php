@@ -46,9 +46,7 @@
           box-shadow: 2px 4px 6px 0 rgba(0,0,0,.1);
     }
 
-    /**
-    * Nestable Extras
-    */
+
 
     .nestable-lists { display: block; clear: both; padding: 30px 0; width: 100%; border: 0; border-top: 2px solid #ddd; border-bottom: 2px solid #ddd; }
 
@@ -77,9 +75,6 @@
 
     .dd-hover > .dd-handle { background: #2ea8e5 !important; }
 
-    /**
-    * Nestable Draggable Handles
-    */
 
     .dd3-content { display: block; height: 30px; margin: 5px 0; padding: 5px 10px 5px 40px; color: #333; text-decoration: none; font-weight: bold; border: 1px solid #ccc;
     background: #fafafa;
@@ -108,9 +103,7 @@
     .dd3-handle:before { content: '≡'; display: block; position: absolute; left: 0; top: 3px; width: 100%; text-align: center; text-indent: 0; color: #fff; font-size: 20px; font-weight: normal; }
     .dd3-handle:hover { background: #ddd; }
 
-    /**
-    * Socialite
-    */
+
 
     .socialite { display: block; float: left; height: 35px; }
 
@@ -181,8 +174,8 @@
                 <textarea  type="text" class="menu form-control description" name="descriptions" placeholder="Masukkan Keterangan Menu" value=""></textarea>
               </div>
               <div class="form-group">
-                <label for="">Target</label>
-                <input  type="text" class="menu form-control link" name="links" placeholder="Masukkan Link Target" value="">
+                <label for="">Url Tujuan </label>
+                <input  type="text" class="menu form-control link" name="links" placeholder="Masukkan Url Tujuan" value="">
               </div>
               <div class="form-group">
                 <label for="">Icon</label>
@@ -209,24 +202,18 @@
           var list   = e.length ? e : $(e.target),
               output = list.data('output');
           if (window.JSON) {
-              output.val(window.JSON.stringify(list.nestable('serialize')));//, null, 2));
+              output.val(window.JSON.stringify(list.nestable('serialize')));
           } else {
               output.val('JSON browser support required for this demo.');
           }
       };
 
-      // activate Nestable for list 1
 
     $('#nestable3').nestable({
      group: 1}
      )
     .on('change', updateOutput);
-      // output initial serialised data
     updateOutput($('#nestable3').data('output', $('#nestable3-output')));
-
-
-
-
     });
     function del_menu(id){
       if(confirm('Hapus Menu ini?'))
@@ -263,6 +250,5 @@
       }
 
      $('.add').click();
-        // output initial serialised data
     }
     </script>

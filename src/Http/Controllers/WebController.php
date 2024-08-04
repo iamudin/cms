@@ -9,21 +9,26 @@ use Illuminate\Http\Request;
 use Udiko\Cms\Models\Category;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Artisan;
+
+use Illuminate\Support\Facades\Session;
 use Udiko\Cms\Http\Controllers\VisitorController;
 
 class WebController extends Controller
 {
     protected $visited;
-    public function __construct()
+    public function __construct(Request $request)
     {
-        if (!config('modules.current.detail_visited')) {
+        if (!config('modules.current.detail_visited') ) {
             $this->visited = (new VisitorController)->visitor_counter();
         }
     }
 
     public function home(Request $req)
-    {
+    {   if($req->self && $req->headers->get('referer')==route('appearance')){
+        Session::put('selfembed',1);
+    }else{
+        Session::forget('selfembed');
+    }
         return get_option('home_page') && get_option('home_page') != 'default' && View::exists('custom_view.' . get_option('home_page')) ? view('custom_view.' . get_option('home_page')) : view('cms::layouts.master');
     }
 

@@ -58,6 +58,7 @@ Route::post('media/imagesummernoteupload', [MediaController::class, 'uploadImage
      Route::controller(PanelController::class)->group(function () {
          Route::get('dashboard', 'index')->name('panel.dashboard');
          Route::post('dashboard', 'visitor')->name('visitor.data');
+         Route::match(['get', 'post'],'appearance', 'appearance')->name('appearance');
          Route::match(['get', 'post'], '/setting', 'setting')->name('setting');
      });
      Route::controller(UserController::class)->group(function ()  {
@@ -89,14 +90,7 @@ Route::post('media/imagesummernoteupload', [MediaController::class, 'uploadImage
          Route::put('comments/{comment}/update', 'update')->name('comment.update');
          Route::delete('comments/{comment}/delete', 'destroy')->name('comment.destroy');
      });
-     Route::controller(TemplateController::class)->group(function () {
-         Route::get('template', 'index')->name('template.index');
-         Route::get('template/detail/{id}', 'detail')->name('template.detail');
-         Route::post('template/detail/{id}', 'submit')->name('template.submit');
-         Route::post('comments/{comment}/reply', 'sendreply')->name('comment.sendreply');
-         Route::put('comments/{comment}/update', 'update')->name('comment.update');
-         Route::delete('comments/{comment}/delete', 'destroy')->name('comment.destroy');
-     });
+
 
      Route::get('/',function(){
         return to_route('login');

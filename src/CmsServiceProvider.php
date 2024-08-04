@@ -110,7 +110,7 @@ class CmsServiceProvider extends ServiceProvider
             } else {
                 Config::set(['app.debug' => false]);
             }
-            if (get_module('domain') && $domain = query()->detail_by_title('domain', req()->getHttpHost())) {
+            if (get_module('domain') && $domain = query()->detail_by_title('domain', (new Request)->getHttpHost())) {
                 Config::set('modules.domain', $domain);
             }
             $this->loadTemplateConfig();

@@ -15,7 +15,7 @@ class Post extends Model
     protected $userselectcolumn = ['id','name','url','slug'];
     protected $categoryselectcolumn = ['id','name','url','status','slug'];
     protected $fillable = [
-        'short_content','title', 'slug', 'content', 'url', 'media', 'media_description', 'keyword', 'description', 'parent_id', 'category_id', 'user_id', 'pinned', 'parent_type', 'type', 'redirect_to', 'status', 'allow_comment', 'mime', 'data_field', 'data_loop', 'created_at','sort','password'
+        'short_content','title', 'slug', 'content', 'url', 'media', 'media_description', 'keyword', 'description', 'parent_id', 'category_id', 'user_id', 'pinned', 'parent_type', 'type', 'redirect_to', 'status', 'allow_comment', 'mime', 'data_field', 'data_loop', 'created_at','sort','password','deleteable'
     ];
     protected $casts = [
         'data_field' => 'array',
@@ -50,7 +50,7 @@ class Post extends Model
         return $this->belongsTo(Category::class)->select($this->categoryselectcolumn);
     }
 
-    public function child()
+    public function childs()
     {
         return $this->hasMany(Post::class, 'parent_id', 'id')->select($this->selected)->whereNotIn('type', ['media']);
     }
@@ -131,7 +131,7 @@ class Post extends Model
 
     function index_limit($type, $limit)
     {
-        if (get_module($type)->cache) {
+        if (get_module($type)?->cache) {
             return collect($this->cachedpost($type)->values())->take($limit);
         } else {
             return $this->select($this->selected)->with('user', 'category')->where('type', $type)->whereStatus('publish')->latest('created_at')->limit($limit)->get();
@@ -143,7 +143,7 @@ class Post extends Model
         if (get_module($type)->cache) {
             return collect($this->categories($type)->values());
         } else {
-            return Category::whereHas('posts')->whereType($type)->whereStatus('publish')->orderBy('sort')->get();
+            return Category::whereHas('posts')->withCount('posts')->whereType($type)->whereStatus('publish')->orderBy('sort')->get();
         }
     }
     function index_skip($type, $skip, $limit)
@@ -156,16 +156,17 @@ class Post extends Model
     }
     function index_sort($type,$order)
     {
-        if (get_module($type)->cache) {
+        if (get_module($type)?->cache) {
             return $order=='asc'? collect($this->cachedpost($type)->values())->sortBy($order) : collect($this->cachedpost($type)->values())->sortByDesc($order);
         } else {
+            $order = in_array(str($order)->lower(),['asc','desc']) ? $order : 'asc';
             return $this->select($this->selected)->whereType($type)->whereStatus('publish')->orderBy('sort',$order)->get();
         }
     }
-    function index_by_sort_parent($type,$order=false)
+    function index_sort_by_parent($type,$order=false)
     {
         $order = $order && in_array(str($order)->lower(),['asc','desc']) ? $order : null;
-            return $this->select('id','user_id')->with('child','user')->whereType($type)->whereStatus('publish')->orderBy('sort',$order ?? 'desc')->get();
+            return $this->select('id','user_id')->with('childs','user')->whereType($type)->whereStatus('publish')->orderBy('sort',$order ?? 'desc')->get();
 
     }
     public function index($type, $paginate = false)
