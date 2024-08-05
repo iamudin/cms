@@ -1,9 +1,9 @@
 <?php
 
-use GuzzleHttp\Psr7\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redirect;
 
 if (!function_exists('query')) {
     function query()
@@ -32,7 +32,7 @@ if (!function_exists('forbidden')) {
         if (get_option('forbidden_keyword') && str()->contains(str($request->fullUrl())->lower(), explode(",", str_replace(" ", "", get_option('forbidden_keyword') ?? '')))) {
             $redirect = get_option('forbidden_redirect');
             if (!empty($redirect) && str($redirect)->isUrl()) {
-                return redirect($redirect);
+                return Redirect::to($redirect)->send();
             } else {
                 abort(403);
             }
