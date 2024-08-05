@@ -32,41 +32,31 @@
             <nav id="navbar" class="navbar">
                 <ul>
                     @foreach (get_menu('header') as $row)
-                        @if (get_menu('header', $row->menu_id)->count() > 0)
-                            <li class="dropdown"><a href="#"><span>{{ $row->menu_name }}</span> <i
-                                        class="bi bi-chevron-down"></i></a>
-                                <ul>
-                                    @foreach (get_menu('header', $row->menu_id) as $row2)
-                                        @if (get_menu('header', $row2->menu_id)->count() > 0)
-                                        <li class="dropdown"><a href="#"><span>{{ $row2->menu_name }}</span>
-                                          <i class="bi bi-chevron-right"></i></a>
-                                            <ul>
-                                            @foreach (get_menu('header', $row2->menu_id) as $row3)
-                                            <li><a href="about.html">{{ $row3->menu_name }}</a></li>
-                                            @endforeach
-                                            </ul>
-                                            </li>
-                                            @else
-                                                <li><a href="about.html">{{ $row2->menu_name }}</a></li>
-                                        @endif
-                                    @endforeach
-                                    {{-- <li class="dropdown"><a href="#"><span>Deep Drop Down</span> <i class="bi bi-chevron-right"></i></a>
-                  <ul>
-                    <li><a href="#">Deep Drop Down 1</a></li>
-                    <li><a href="#">Deep Drop Down 2</a></li>
-                    <li><a href="#">Deep Drop Down 3</a></li>
-                    <li><a href="#">Deep Drop Down 4</a></li>
-                    <li><a href="#">Deep Drop Down 5</a></li>
-                  </ul>
-                </li> --}}
-                                </ul>
-                            </li>
-                        @else
-                            <li><a href="index.html">{{ $row->name }}</a></li>
-                        @endif
-                    @endforeach
+                    @if ($row->sub)
+                        <li class="dropdown"><a href="#"><span>{{ $row->name }}</span> <i
+                                    class="bi bi-chevron-down"></i></a>
+                            <ul>
+                                @foreach ($row->sub as $row2)
+                                    @if ($row2->sub)
+                                    <li class="dropdown"><a href="#"><span>{{ $row2->name }}</span>
+                                      <i class="bi bi-chevron-right"></i></a>
+                                        <ul>
+                                        @foreach ($row2->sub as $row3)
+                                        <li><a href="{{ $row3->url }}">{{ $row3->name }}</a></li>
+                                        @endforeach
+                                        </ul>
+                                        </li>
+                                        @else
+                                            <li><a href="{{ $row2->url }}">{{ $row2->name }}</a></li>
+                                    @endif
+                                @endforeach
 
-
+                            </ul>
+                        </li>
+                    @else
+                        <li><a href="{{ $row->url }}">{{ $row->name }}</a></li>
+                    @endif
+                @endforeach
 
                 </ul>
                 <i class="bi bi-list mobile-nav-toggle"></i>
