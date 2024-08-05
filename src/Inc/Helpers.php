@@ -323,15 +323,7 @@ if (!function_exists('regenerate_cache')) {
         }
     }
 }
-if (!function_exists('selfEmbeder')) {
-    function selfEmbeder($request)
-    {
-        if(\Illuminate\Support\Facades\Session::has('selfembed')){
-            return true;
-        }
 
-    }
-}
 if (!function_exists('recache_option')) {
     function recache_option()
     {
@@ -1058,7 +1050,7 @@ function put_image($src, $path)
 if (!function_exists('admin_only')) {
     function admin_only()
     {
-        return request()->user()->level != 'admin' ? redirect()->to(admin_path() . '/dashboard')->send()->with('danger', 'Akses Terbatas untuk administrator') : true;
+        return !request()->user()->isAdmin() ? to_route('panel.dashboard')->send()->with('danger', 'Akses Terbatas untuk administrator') : true;
     }
 }
 if (!function_exists('_tohref')) {
@@ -1070,9 +1062,10 @@ if (!function_exists('_tohref')) {
 if (!function_exists('banner_here')) {
     function banner_here($name,$data)
     {
-        return selfEmbeder(request()) ? View::make('cms::layouts.banner',['banner'=>$name,'data'=>$data]) : null;
+        return \Illuminate\Support\Facades\Auth::user()?->isAdmin() ? View::make('cms::layouts.banner',['banner'=>$name,'data'=>$data]) : null;
     }
 }
+
 if (!function_exists('get_banner')) {
     function get_banner($name, $limit = 1)
     {

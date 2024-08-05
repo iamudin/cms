@@ -24,11 +24,7 @@ class WebController extends Controller
     }
 
     public function home(Request $req)
-    {   if($req->self && $req->headers->get('referer')==route('appearance')){
-        Session::put('selfembed',1);
-    }else{
-        Session::forget('selfembed');
-    }
+    {
         return get_option('home_page') && get_option('home_page') != 'default' && View::exists('custom_view.' . get_option('home_page')) ? view('custom_view.' . get_option('home_page')) : view('cms::layouts.master');
     }
 

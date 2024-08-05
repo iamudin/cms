@@ -50,7 +50,7 @@ class Web
     function securityHeaders($response,$request){
             $response->headers->set('X-Content-Type-Options', 'nosniff');
 
-        if(get_option('frame_embed') && get_option('frame_embed')=='Y' && !selfEmbeder($request)){
+        if(get_option('frame_embed') && get_option('frame_embed')=='Y' && !Auth::check()){
         // Set X-Frame-Options Header
         $response->headers->set('X-Frame-Options', 'DENY');
          }

@@ -18,7 +18,7 @@ class UserController extends Controller implements HasMiddleware
             new Middleware('auth'),
             function (Request $request, Closure $next) {
                 if(!$request->user()->isAdmin()){
-                    return redirect()->route('panel.dashboard');
+                    return redirect()->route('panel.dashboard')->send()->with('danger','Akses hanya admin');
                 }
                 return $next($request);
             },

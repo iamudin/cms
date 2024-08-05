@@ -13,7 +13,46 @@
 
 
 <div class="col-lg-2">
-  <ul class="list-group mb-3">
+    <h6>Modul</h6>
+    <div class="accordion mb-3" id="accordionExample" >
+        @foreach(collect(get_module())->where('public',true)->where('web.detail',true) as $row)
+        <div class="card">
+          <div class="card-header" id="heading{{ $row->name }}" style="padding:0">
+              <span class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#{{ $row->name }}" aria-expanded="true" aria-controls="{{ $row->name }}">
+               <i class="fa {{ $row->icon }}"></i> {{ $row->title }}
+              </span>
+          </div>
+
+          <div id="{{ $row->name }}" class="collapse {{ $loop->first ? 'show':'' }}" aria-labelledby="heading{{ $row->name }}" data-parent="#accordionExample">
+            <div class="card-body py-2" >
+                <ul style="margin:0;padding:0;">
+              @if($row->web->index)
+              <li>
+                <a href="javascript::void(0)" onclick="$('.preview').attr('src','{{ url($row->name) }}')">View INDEX</a>
+              </li>
+              @endif
+              @if($row->web->detail)
+              <li>
+                @php $detail = query()->detail($row->name) @endphp
+                <a href="javascript::void(0)" onclick="$('.preview').attr('src','{{ url($detail->url ?? '/') }}')">View DETAIL</a>
+            </li>
+              @endif
+              @if($row->form->category)
+              @php $category = query()->index_category($row->name)->first() @endphp
+              <li>
+                <a href="javascript::void(0)"  onclick="$('.preview').attr('src','{{ url($category->url ?? '/') }}')">View CATEGORY</a>
+
+              </li>
+              @endif
+            </ul>
+            </div>
+          </div>
+        </div>
+        @endforeach
+      </div>
+      <h6>Info Template</h6>
+
+      <ul class="list-group mb-3">
     @foreach(config('modules.config.template_info') as $row)
     <li class="list-group-item" style="padding:4px 10px">
       <small>{{ str($row[0])->headline() }}</small><br>
@@ -21,7 +60,12 @@
     </li>
     @endforeach
   </ul>
-  <div class="tile">
+
+</div>
+<div class="col-lg-10">
+
+<iframe  src="{{ url('/') }}" frameborder="0" class="w-100 preview" style="height: 80vh;border-radius:5px;border:4px solid rgb(48, 48, 48)"></iframe>
+<div class="tile mt-3">
     <div class="tile-tile">
         <h6>Template Baru</h6>
     </div>
@@ -34,10 +78,8 @@
     </div>
   </div>
 </div>
-<div class="col-lg-10">
-<iframe  src="{{ url('/') }}?self=1" frameborder="0" class="w-100" style="height: 80vh;border-radius:5px;border:4px solid rgb(48, 48, 48)"></iframe>
 </div>
-</div>
+
 </div>
 
 @endsection

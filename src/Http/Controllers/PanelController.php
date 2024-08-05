@@ -74,6 +74,7 @@ class PanelController extends Controller implements HasMiddleware
     }
 
     public function setting(Request $request, Option $option){
+        admin_only();
         $data['web_type'] = config('modules.config.web_type');
         $data['option'] = array_merge(config('modules.config.option') ?? [], [
             ['Icon','file'],
@@ -195,6 +196,7 @@ class PanelController extends Controller implements HasMiddleware
 
     }
 public function appearance(Request $request){
+    admin_only();
 return view('cms::backend.appearance');
 }
 }

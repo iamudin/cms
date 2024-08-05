@@ -10,7 +10,7 @@ class VisitorController
     {
 
         // Check for duplicate visitor
-        if (!$this->isDuplicateVisitor(Session::getId(), url()->full()) && !selfEmbeder(request())) {
+        if (!$this->isDuplicateVisitor(Session::getId(), url()->full()) && request()->headers->get('referer')!=route('appearance')) {
             $visitorData = [
                 'ip' => request()->ip(),
                 'user_id' => request()->user()?->id,
