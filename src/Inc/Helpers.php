@@ -1137,7 +1137,7 @@ if (!function_exists('make_custom_view')) {
     function make_custom_view($id, $content)
     {
         $data = $content;
-        $path = resource_path('views/custom_view/' . _us(request()->getHost()));
+        $path = resource_path('views/custom_view');
         if (!is_dir($path)) {
             mkdir($path);
         }
