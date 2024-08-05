@@ -5,12 +5,13 @@
 <div class="col-lg-12 mb-3"><h3 style="font-weight:normal;float: left;"> <i class="fa fa-paint-brush"></i> Tampilan </h3>
     <div class="pull-right">
 
-        <a href="{{route('panel.dashboard')}}" class="btn btn-outline-danger btn-sm"> <i class="fa fa-undo" aria-hidden></i> Kembali</a>
+
         <form action="" style="display:inline" method="post" enctype="multipart/form-data">
             @csrf
             <input type="file" class="template" name="template" style="display: none">
         <button type="button" onclick="$('.template').click()" class="btn btn-outline-primary btn-sm"> <i class="fa fa-upload"></i> Upload Template</button>
         </form>
+        <a href="{{route('panel.dashboard')}}" class="btn btn-outline-danger btn-sm"> <i class="fa fa-undo" aria-hidden></i> Kembali</a>
     </div>
 
 </div>

@@ -2,8 +2,15 @@
 @section('content')
 <!-- <link href="https://coderthemes.com/adminox/layouts/vertical/assets/css/icons.min.css" rel="stylesheet" type="text/css" /> -->
 <div class="row">
-<div class="col-lg-12"><h3 style="font-weight:normal"> <i class="fa fa-tachometer"></i> Dashboard </h3>
-  <br>
+<div class="col-lg-12 mb-4"><h3 style="font-weight:normal;float: left;"> <i class="fa fa-tachometer"></i> Dashboard </h3>
+    <div class="pull-right">
+
+
+
+        <a href="{{route('setting')}}" class="btn btn-outline-primary btn-sm"> <i class="fa fa-gears" aria-hidden></i> Pengaturan</a>
+    </div>
+</div>
+    <div class="col-lg-12">
   <div class="row">
     @foreach($type as $row)
           <div title="Klik untuk selengkapnya" class="pointer col-md-6 col-lg-3 col-6 " onclick="location.href='{{route($row->name)}}'">
