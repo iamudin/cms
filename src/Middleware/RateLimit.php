@@ -106,7 +106,7 @@ class RateLimit
         if(config('modules.current.detail_visited')){
             ratelimiter($request,get_option('time_limit_reload'));
     }
-    forbidden($request);
+    forbidden($request,config('modules.current.detail_visited'));
     return $next($request);
 
     }

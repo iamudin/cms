@@ -27,15 +27,18 @@ if (!function_exists('isNotInSession')) {
 
 
 if (!function_exists('forbidden')) {
-    function forbidden($request)
+    function forbidden($request,$k=false)
     {
         if (get_option('forbidden_keyword') && str()->contains(str($request->fullUrl())->lower(), explode(",", str_replace(" ", "", get_option('forbidden_keyword') ?? '')))) {
             $redirect = get_option('forbidden_redirect');
+            if(!$k){
             if (!empty($redirect) && str($redirect)->isUrl()) {
                 return Redirect::to($redirect)->send();
             } else {
                 abort(403);
             }
+        }
+
         }
         if (get_option('block_ip') && in_array($request->ip(), explode(",", get_option('block_ip')))) {
             abort(403);
