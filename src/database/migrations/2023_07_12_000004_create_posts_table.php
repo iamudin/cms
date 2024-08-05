@@ -37,7 +37,7 @@ return new class extends Migration
             $table->json('data_field')->nullable();
             $table->json('data_loop')->nullable();
             $table->string('password')->nullable();
-            $table->tinyInteger('deleteable',1)->default(1);
+            $table->tinyInteger('deleteable')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
