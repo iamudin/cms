@@ -2,10 +2,15 @@
 @section('content')
 
 <div class="row">
-<div class="col-lg-12 mb-4"><h3 style="font-weight:normal;float: left;"> <i class="fa fa-paint-brush"></i> Tampilan </h3>
+<div class="col-lg-12 mb-3"><h3 style="font-weight:normal;float: left;"> <i class="fa fa-paint-brush"></i> Tampilan </h3>
     <div class="pull-right">
 
         <a href="{{route('panel.dashboard')}}" class="btn btn-outline-danger btn-sm"> <i class="fa fa-undo" aria-hidden></i> Kembali</a>
+        <form action="" style="display:inline" method="post" enctype="multipart/form-data">
+            @csrf
+            <input type="file" class="template" name="template" style="display: none">
+        <button type="button" onclick="$('.template').click()" class="btn btn-outline-primary btn-sm"> <i class="fa fa-upload"></i> Upload Template</button>
+        </form>
     </div>
 
 </div>
@@ -58,25 +63,18 @@
       <small>{{ str($row[0])->headline() }}</small><br>
       <h6>{{ $row[1] }}</h6>
     </li>
-    @endforeach
-  </ul>
 
+    @endforeach
+    <li class="list-group-item" style="padding:0;">
+        <a href="" class="btn btn-outline-warning btn-sm btn-md w-100"> <i class="fa fa-code"></i> Edit Template</a>
+
+            </li>
+  </ul>
 </div>
 <div class="col-lg-10">
 
 <iframe  src="{{ url('/') }}" frameborder="0" class="w-100 preview" style="height: 80vh;border-radius:5px;border:4px solid rgb(48, 48, 48)"></iframe>
-<div class="tile mt-3">
-    <div class="tile-tile">
-        <h6>Template Baru</h6>
-    </div>
-    <div class="tile-body">
-        <form action="" method="post" enctype="multipart/form-data">
-            @csrf
-            <input type="file" class="template" name="template" style="display: none">
-        <button type="button" onclick="$('.template').click()" class="btn btn-primary btn-sm w-100"> <i class="fa fa-file-archive-o"></i> Pilih File .zip</button>
-        </form>
-    </div>
-  </div>
+
 </div>
 </div>
 
