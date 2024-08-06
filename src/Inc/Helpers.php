@@ -1138,15 +1138,15 @@ function renderTemplateFile($items, $parentPath = '') {
     foreach ($items as $item) {
         $currentPath = $parentPath . '/' . $item['name'];
         if (isset($item['children']) && !empty($item['children'])) {
-            echo '<li class="folder"> <i class="fa fa-folder"></i> ' . htmlspecialchars($item['name']);
+            echo '<li class="folder"> <i class="fa fa-folder"></i> <span class="pull-right text-danger"><i class="fa fa-file-circle-plus" title="Create File" onclick="filePrompt(\''. $currentPath .'\')"></i> </span>' . htmlspecialchars($item['name']);
             renderTemplateFile($item['children'], $currentPath);
             echo '</li>';
         } elseif(strtolower(substr(strrchr($item['name'], '.'), 1))) {
-            echo '<li><i class="fa fa-code"></i> <a href="'.route('appearance.editor').'?edit='.htmlspecialchars($currentPath).'">' . htmlspecialchars($item['name']) . '</a></li>';
+            echo '<li><a href="'.route('appearance.editor').'?edit='.htmlspecialchars($currentPath).'"><img src="/blade.png" height="14" >  ' . htmlspecialchars($item['name']) . '</a></li>';
         }
         else
         {
-            echo '<li><i class="fa fa-folder"></i> <a href="'.route('appearance.editor').'?edit='.htmlspecialchars($currentPath).'">' . htmlspecialchars($item['name']) . '</a></li>';
+            echo '<li><i class="fa fa-folder"></i> ' . htmlspecialchars($item['name']) . ' <span class="pull-right text-danger"><i class="fa fa-file-circle-plus" onclick="filePrompt(\''. $currentPath .'\')" title="Create File"></i> </span></li>';
         }
     }
     echo '</ul>';

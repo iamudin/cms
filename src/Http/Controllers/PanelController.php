@@ -10,6 +10,8 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Routing\Controllers\HasMiddleware;
 
+use function PHPUnit\Framework\directoryExists;
+
 class PanelController extends Controller implements HasMiddleware
 {
     public static function middleware(): array {
@@ -189,7 +191,6 @@ class PanelController extends Controller implements HasMiddleware
                 }
             }
             recache_option();
-            Artisan::call('optimize');
             return  back()->with('success', 'Berhasil disimpan');
         }
         return view('cms::backend.setting',$data);
@@ -206,17 +207,52 @@ public function editorTemplate(Request $request){
     $file = $request->edit ?? '/index.blade.php';
 
     if($request->isMethod('post')){
-        if($content = $request->file_src){
-            $data = $content;
-            $file = $path . '/' . $file;
-            $myfile = fopen($file, "w") or die("Unable to open file!");
-            fwrite($myfile, $data);
-            fclose($myfile);
+        switch($request->type){
+            case 'create_dir':
+                $dir = str($request->dirname)->slug();
+                if(!is_dir($path.'/'.$dir)){
+                    mkdir($path.'/'.$dir);
+                    return response()->json(['msg'=>'success']);
+                }
+            break;
+            case 'create_file':
+                $filepath = $request->filepath ?? null;
+                $filename = str($request->filename)->slug().'.blade.php';
+                if(!file_exists($path.'/'.$filename)){
+                    $myfile = fopen($path.$filepath.'/'.$filename, "w") or die("Unable to open file!");
+                    fwrite($myfile, '<h1>You Script Here</h1>');
+                    fclose($myfile);
+                    return response()->json(['msg'=>'success']);
+                }
+            break;
+            case 'delete_file':
+                $filename = $request->filename;
+                if(file_exists($path.$filename)){
+                   unlink($path.$filename);
+                return response()->json(['msg'=>'success']);
+                }
+            break;
+            case 'change_file':
+            if($content = $request->file_src){
+                $data = $content;
+                $file = $path  . $file;
+                $myfile = fopen($file, "w") or die("Unable to open file!");
+                fwrite($myfile, $data);
+                fclose($myfile);
+                if(strpos($file,'modules.blade.php') !==false){
+                Artisan::call('optimize');
+                }
+            }
+
+            return back()->with('success','Perubahan Tersimpan');
+            break;
         }
 
-        return back()->with('success','Perubahan Tersimpan');
     }
-    $src = $file && file_exists($path.$file) ? file_get_contents($path.$file) : null;
+    $src = $file && file_exists($path.$file) && is_file($path.$file) ? (file_get_contents($path.$file) ? file_get_contents($path.$file) : '<h1>Here You Script</h1>') : null;
+    if(!$src){
+        return to_route('appearance.editor')->with('danger','Source tidak ditemukan!');
+    }
     return view('cms::backend.editortemplate',['view'=>$src]);
     }
 }
