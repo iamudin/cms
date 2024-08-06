@@ -1,7 +1,7 @@
-@extends('cms::backend.layout.app',['title'=>'Edit Tampilan'])
+@extends('cms::backend.layout.app',['title'=>'Edit Template'])
 @section('content')
 <div class="row">
-<div class="col-lg-12 mb-3"><h3 style="font-weight:normal;float: left;"> <i class="fa fa-paint-brush"></i> Edit Tampilan </h3>
+<div class="col-lg-12 mb-3"><h3 style="font-weight:normal;float: left;"> <i class="fa fa-paint-brush"></i> Edit Template </h3>
     <div class="pull-right">
 
 
@@ -18,7 +18,7 @@
     </div>
 @else
 <div class="col-lg-3">
-<h6 > <i class="fa fa-folder"></i> /{{ template() }}/ <span class="pull-right text-danger"><i class="fa fa-folder-plus" onclick="folderPrompt()" title="Create Folder"></i> <i class="fa fa-file-circle-plus" onclick="filePrompt()" title="Create File"></i> </span></h6>
+<h6 > <i class="fa fa-folder"></i> /{{ template() }}/ <span class="pull-right text-danger"><i class="fa fa-folder-plus pointer" onclick="folderPrompt()" title="Create Folder"></i> &nbsp;  <i class="fa fa-file-circle-plus  pointer" onclick="filePrompt()" title="Create File"></i> </span></h6>
 <div style="max-height: 74vh;overflow:auto;padding-right:10px">
 
 @php
@@ -44,9 +44,9 @@
     <form action="{{ url()->full() }}" class="editorForm" method="post">
         @csrf
         @if($e = request()->edit )
-    <h6> <i class="fa fa-edit"></i> {{  'Edit : '.$e  }} <i onclick="deleteFile('{{ $e }}')" class="fa fa-trash-o text-danger pointer" title="Delete this file "></i></h6>
+    <h6> <i class="fa fa-edit"></i> {{  'Edit : '.$e  }} @if(!str($e)->contains(['modules','home','header','footer']))<i onclick="deleteFile('{{ $e }}')" class="fa fa-trash-o text-danger pointer" title="Delete this file "></i>@endif</h6>
     @else
-    <h6> <i class="fa fa-edit"></i> {{  'Edit : /index.blade.php'  }}</h6>
+    <h6> <i class="fa fa-edit"></i> {{  'Edit : /home.blade.php'  }}</h6>
 
     @endif
     <input type="hidden" name="type" value="change_file">

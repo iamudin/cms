@@ -1138,7 +1138,7 @@ function renderTemplateFile($items, $parentPath = '') {
     foreach ($items as $item) {
         $currentPath = $parentPath . '/' . $item['name'];
         if (isset($item['children']) && !empty($item['children'])) {
-            echo '<li class="folder"> <i class="fa fa-folder"></i> <span class="pull-right text-danger"><i class="fa fa-file-circle-plus" title="Create File" onclick="filePrompt(\''. $currentPath .'\')"></i> </span>' . htmlspecialchars($item['name']);
+            echo '<li class="folder"> <i class="fa fa-folder"></i> <span class="pull-right text-danger"><i class="fa fa-file-circle-plus   pointer" title="Create File" onclick="filePrompt(\''. $currentPath .'\')"></i> </span>' . htmlspecialchars($item['name']);
             renderTemplateFile($item['children'], $currentPath);
             echo '</li>';
         } elseif(strtolower(substr(strrchr($item['name'], '.'), 1))) {
@@ -1146,7 +1146,7 @@ function renderTemplateFile($items, $parentPath = '') {
         }
         else
         {
-            echo '<li><i class="fa fa-folder"></i> ' . htmlspecialchars($item['name']) . ' <span class="pull-right text-danger"><i class="fa fa-file-circle-plus" onclick="filePrompt(\''. $currentPath .'\')" title="Create File"></i> </span></li>';
+            echo '<li><i class="fa fa-folder"></i> ' . htmlspecialchars($item['name']) . ' <span class="pull-right text-danger"><i class="fa fa-file-circle-plus  pointer" onclick="filePrompt(\''. $currentPath .'\')" title="Create File"></i> </span></li>';
         }
     }
     echo '</ul>';

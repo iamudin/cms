@@ -355,7 +355,7 @@ public function recache($type){
                 $btn .= $row->type=='media' && $row->id == $row->parent_id ? '<button title="Hapus Media" class="btn btn-sm btn-danger fa fa-trash" onclick="deleteAlert(\''.basename($row->media).'\')"></button>' : '';
 
 
-                $btn .= ($row->type != 'media' && Route::has($row->type . '.destroyer') && empty($row->childs_count)) ? ($row->type == 'menu' && !empty($row->data_loop) ? '': '<button onclick="deleteAlert(\''.route($row->type.'.destroyer',$row->id).'\')" class="btn btn-danger btn-sm fa fa-trash"></button>' ) :'';
+                $btn .= ($row->type != 'media' && Route::has($row->type . '.destroyer') && empty($row->childs_count)) ? ($row->type == 'menu' && !empty($row->data_loop) ? '': '<button onclick="deleteAlert(\''.route($row->type.'.destroyer',$row->id).'\')" class="btn btn-danger btn-sm fa fa-trash-o"></button>' ) :'';
                 $btn .= '</div></div>';
                 return $btn;
             })

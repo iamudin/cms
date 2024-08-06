@@ -1,6 +1,6 @@
 @if($data)
-<div style="padding:10px;">
-<small>Banner {{ $banner }}</small>
+<div style="margin-bottom:5px;">
+<small style="cursor:pointer" title="Tulisan ini hanya bisa dilihat oleh admin yang sedang Aktif login">Banner {{ $banner }} <b style="color:red">[?]</b> </small>
 </div>
 @else
 <div style="width:100%;border:2px dashed #222;vertical-align:center;text-align:center;background:#f5f5f5;margin:10px 0">

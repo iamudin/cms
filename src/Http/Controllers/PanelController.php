@@ -204,7 +204,12 @@ return view('cms::backend.appearance');
 public function editorTemplate(Request $request){
     admin_only();
     $path = resource_path('views/template/'.template());
-    $file = $request->edit ?? '/index.blade.php';
+    if(!file_exists($path.'/home.blade.php')){
+        $myfile = fopen($path.'/home.blade.php', "w") or die("Unable to open file!");
+        fwrite($myfile, '<h1>You Script Here</h1>');
+        fclose($myfile);
+    }
+    $file = $request->edit ?? '/home.blade.php';
 
     if($request->isMethod('post')){
         switch($request->type){
@@ -227,6 +232,9 @@ public function editorTemplate(Request $request){
             break;
             case 'delete_file':
                 $filename = $request->filename;
+                if(strpos($filename,'modules.blade.php') !==false){
+                    return to_route('appearance')->with('danger','Action denied!');
+                }
                 if(file_exists($path.$filename)){
                    unlink($path.$filename);
                 return response()->json(['msg'=>'success']);

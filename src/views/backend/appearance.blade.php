@@ -10,6 +10,7 @@
             @csrf
             <input type="file" class="template" name="template" style="display: none">
         <button type="button" onclick="$('.template').click()" class="btn btn-outline-primary btn-sm"> <i class="fa fa-upload"></i> Upload Template</button>
+        <a href="" class="btn btn-outline-info btn-sm"> <i class="fa fa-download"></i> Sample</a>
         </form>
         <a href="{{route('panel.dashboard')}}" class="btn btn-outline-danger btn-sm"> <i class="fa fa-undo" aria-hidden></i> Kembali</a>
     </div>
@@ -67,7 +68,7 @@
 
     @endforeach
     <li class="list-group-item" style="padding:0;">
-        <a href="{{ route('appearance.editor') }}" class="btn btn-outline-warning btn-sm btn-md w-100"> <i class="fa fa-code"></i> Edit Template</a>
+        <a target="_blank" href="{{ route('appearance.editor') }}" class="btn btn-outline-warning btn-sm btn-md w-100"> <i class="fa fa-code"></i> Edit Template</a>
 
             </li>
   </ul>
