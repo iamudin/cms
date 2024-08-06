@@ -1142,7 +1142,7 @@ function renderTemplateFile($items, $parentPath = '') {
             renderTemplateFile($item['children'], $currentPath);
             echo '</li>';
         } elseif(strtolower(substr(strrchr($item['name'], '.'), 1))) {
-            echo '<li><a href="'.route('appearance.editor').'?edit='.htmlspecialchars($currentPath).'"><img src="/blade.png" height="14" >  ' . htmlspecialchars($item['name']) . '</a></li>';
+            echo '<li><a href="'.route('appearance.editor').'?edit='.htmlspecialchars($currentPath).'"><i class="fab fa-laravel text-danger"></i>  ' . htmlspecialchars($item['name']) . '</a></li>';
         }
         else
         {
