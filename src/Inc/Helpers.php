@@ -1133,6 +1133,50 @@ if (!function_exists('get_ip_info')) {
         }
     }
 }
+function renderTemplateFile($items, $parentPath = '') {
+    echo '<ul style="list-style:none;padding:0 0 0 14px">';
+    foreach ($items as $item) {
+        $currentPath = $parentPath . '/' . $item['name'];
+        if (isset($item['children']) && !empty($item['children'])) {
+            echo '<li class="folder"> <i class="fa fa-folder"></i> ' . htmlspecialchars($item['name']);
+            renderTemplateFile($item['children'], $currentPath);
+            echo '</li>';
+        } elseif(strtolower(substr(strrchr($item['name'], '.'), 1))) {
+            echo '<li><i class="fa fa-code"></i> <a href="'.route('appearance.editor').'?edit='.htmlspecialchars($currentPath).'">' . htmlspecialchars($item['name']) . '</a></li>';
+        }
+        else
+        {
+            echo '<li><i class="fa fa-folder"></i> <a href="'.route('appearance.editor').'?edit='.htmlspecialchars($currentPath).'">' . htmlspecialchars($item['name']) . '</a></li>';
+        }
+    }
+    echo '</ul>';
+}
+
+function getDirectoryContents($path = null, &$results = [], $parentPath = '') {
+    if (is_null($path)) {
+        $path = base_path('resources/views/template/'.template());
+    }
+
+    $files = scandir($path);
+
+    foreach ($files as $key => $value) {
+        $fullPath = $path . DIRECTORY_SEPARATOR . $value;
+        $currentPath = $parentPath . '/' . $value;
+        if (is_dir($fullPath) && $value != "." && $value != "..") {
+            $directory = [
+                'name' => $value,
+                'children' => []
+            ];
+            getDirectoryContents($fullPath, $directory['children'], $currentPath);
+            $results[] = $directory;
+        } elseif (!is_dir($fullPath)) {
+            $results[] = ['name' => $value, 'children' => []];
+        }
+    }
+
+    return $results;
+}
+
 if (!function_exists('make_custom_view')) {
     function make_custom_view($id, $content)
     {

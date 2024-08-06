@@ -67,7 +67,7 @@
 
     @endforeach
     <li class="list-group-item" style="padding:0;">
-        <a href="" class="btn btn-outline-warning btn-sm btn-md w-100"> <i class="fa fa-code"></i> Edit Template</a>
+        <a href="{{ route('appearance.editor') }}" class="btn btn-outline-warning btn-sm btn-md w-100"> <i class="fa fa-code"></i> Edit Template</a>
 
             </li>
   </ul>

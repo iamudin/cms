@@ -187,7 +187,7 @@ return [
                 'index' => true,
                 'detail' => true,
                 'history' => false,
-                'auto_query' => false,
+                'auto_query' => true,
                 'sortable'=>true,
             ],
             'public' => true,

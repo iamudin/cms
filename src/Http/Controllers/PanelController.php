@@ -196,7 +196,27 @@ class PanelController extends Controller implements HasMiddleware
 
     }
 public function appearance(Request $request){
-    admin_only();
+admin_only();
 return view('cms::backend.appearance');
 }
+
+public function editorTemplate(Request $request){
+    admin_only();
+    $path = resource_path('views/template/'.template());
+    $file = $request->edit ?? '/index.blade.php';
+
+    if($request->isMethod('post')){
+        if($content = $request->file_src){
+            $data = $content;
+            $file = $path . '/' . $file;
+            $myfile = fopen($file, "w") or die("Unable to open file!");
+            fwrite($myfile, $data);
+            fclose($myfile);
+        }
+
+        return back()->with('success','Perubahan Tersimpan');
+    }
+    $src = $file && file_exists($path.$file) ? file_get_contents($path.$file) : null;
+    return view('cms::backend.editortemplate',['view'=>$src]);
+    }
 }

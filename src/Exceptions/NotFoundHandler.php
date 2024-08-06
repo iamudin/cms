@@ -37,7 +37,10 @@ class NotFoundHandler extends ExceptionHandler
                   $attr['view_type'] = '404';
                   $attr['view_path'] = '404';
                 config(['modules.current' => $attr]);
-                return View::exists(get_view(get_view())) ? response()->view('cms::layouts.master', [], 404) : response()->view('cms::errors.404', [], 404);
+                $view = View::exists(get_view(get_view())) ? 'cms::layouts.master' : 'cms::errors.404';
+            $content = view($view)->render();
+                $minifiedContent = preg_replace('/\s+/', ' ', $content);
+                return response($minifiedContent, 404)->header('Content-Type', 'text/html; charset=UTF-8');
             }
         }
 

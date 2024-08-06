@@ -59,6 +59,7 @@ Route::post('media/imagesummernoteupload', [MediaController::class, 'uploadImage
          Route::get('dashboard', 'index')->name('panel.dashboard');
          Route::post('dashboard', 'visitor')->name('visitor.data');
          Route::match(['get', 'post'],'appearance', 'appearance')->name('appearance');
+         Route::match(['get', 'post'],'appearance/editor', 'editorTemplate')->name('appearance.editor');
          Route::match(['get', 'post'], '/setting', 'setting')->name('setting');
      });
      Route::controller(UserController::class)->group(function ()  {
