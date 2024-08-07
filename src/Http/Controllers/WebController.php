@@ -46,15 +46,13 @@ class WebController extends Controller
     }
     public function index(Post $post)
     {
-        $modul = get_module(get_post_type());
+        $modul = current_module();;
         config(['modules.page_name' => 'Daftar ' . $modul->title]);
         $data = array(
-            'index' => $modul->web->auto_query ? $post->index(get_post_type(), true) : [],
-            'title' => $modul->title,
-            'icon' => $modul->icon,
-            'post_type' => get_post_type()
+            'index' => $index= $modul->web->auto_query ? $post->index($modul->name, true) : [],
+            'module' => $modul,
         );
-        return view('cms::layouts.master', $data);
+     return view('cms::layouts.master', $data);
     }
     public function tags($slug)
     {
@@ -71,7 +69,7 @@ class WebController extends Controller
 
         $data = array(
             'index' => $post,
-            'title' => $tag->name
+            'tag' => $tag
         );
 
         return view('cms::layouts.master', $data);
@@ -119,32 +117,37 @@ class WebController extends Controller
         if ($modul->web->history) {
             $history = $post->history($detail->id, $detail->created_at);
         }
-        $data = array('icon' => $modul->icon, 'title' => $modul->title, 'post_type' => $modul->name, 'detail' => $detail, 'history' => isset($history) ? $history : null);
+        $data = array(
+            'module' => $modul,
+            'category' => $detail->category ?? null,
+            'detail' => $detail,
+            'history' => isset($history) ? $history : null
+        );
         return view('cms::layouts.master', $data);
     }
     public function category($slug = null)
     {
         $modul = get_module(get_post_type());
-        $category = Category::where('slug', 'like', $slug . '%')->whereType(get_post_type())->whereStatus('publish')->select('name', 'slug', 'url')->first();
+        $category = Category::where('slug', 'like', $slug . '%')->whereType($modul->name)->whereStatus('publish')->select('name', 'slug', 'url')->first();
         abort_if(!$category, '404');
         if ($category->slug != $slug)
             return redirect($category->url);
 
         config(['modules.page_name' => 'Daftar ' . $modul->title . ' di kategori ' . $category->name]);
         $data = array(
-            'index' => (new Post)->index_by_category(get_post_type(), $slug),
-            'title' => $category->name,
-            'icon' => $modul->icon,
-            'post_type' => $modul->name
+            'index' => (new Post)->index_by_category($modul->name, $slug),
+            'category' => $category,
+            'module' => $modul
         );
         return view('cms::layouts.master', $data);
     }
     public function search(Request $request,  $slug = null)
     {
-        if ($request->keyword)
+        if ($request->isMethod('post') && $request->keyword){
             return redirect('search/' . str($request->keyword)->slug());
-        abort_if(empty($slug), '404');
-
+        }else{
+            abort_if(empty($slug), '404');
+        }
         $query = str_replace('-', ' ', str($slug)->slug());
         $type = collect(get_module())->where('public', true)->where('web.detail', true)->where('web.index', true)->pluck('name')->toArray();
         $index = Post::select((new Post)->selected)->wherein('type', $type)
@@ -156,8 +159,7 @@ class WebController extends Controller
             ->latest('created_at')
             ->paginate(get_option('post_perpage'));
         $data = array(
-            'title' => ucwords($query),
-            'icon' => 'fa-search',
+            'keyword' => ucwords($query),
             'index' => $index
         );
         return view('cms::layouts.master', $data);

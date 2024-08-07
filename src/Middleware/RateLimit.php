@@ -76,7 +76,7 @@ class RateLimit
                 'modules.current' => $attr
             ]);
         }
-        if ($request->is('search/*')) {
+        if ($request->is('search') || $request->is('search/*')) {
             $attr['post_type'] = null;
             $attr['detail_visited'] = false;
             $attr['view_type'] = 'search';

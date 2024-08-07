@@ -143,7 +143,7 @@ class Post extends Model
         if (get_module($type)->cache) {
             return collect($this->categories($type)->values());
         } else {
-            return Category::whereHas('posts')->withCount('posts')->whereType($type)->whereStatus('publish')->orderBy('sort')->get();
+            return Category::withCount('posts')->whereType($type)->whereStatus('publish')->orderBy('sort')->get();
         }
     }
     function index_skip($type, $skip, $limit)

@@ -7,6 +7,7 @@ use Udiko\Cms\Http\Controllers\SetupController;
 
 // Route::get('setup', [Udiko\Cms\Http\Controllers\SetupController::class, 'index']);
 if (!config('modules.domain')){
+
 $modules = collect(get_module())->where('name','!=','halaman')->where('active', true)->where('public', true);
     foreach($modules as $modul)
      {
@@ -36,14 +37,15 @@ $modules = collect(get_module())->where('name','!=','halaman')->where('active', 
                 });
     }
     Route::match(['get', 'post'], 'tags/{slug}', [WebController::class, 'tags'])->middleware(['public']);
-    Route::match(['get', 'post'], 'search/{slug}', [WebController::class, 'search'])->middleware(['public']);
     Route::match(['get', 'post'], 'author/{user:slug}', [WebController::class, 'author'])->middleware(['public']);
-
+    Route::match(['get', 'post'], 'search/{slug?}', [WebController::class, 'search'])->middleware(['public']);
     Route::match(['get', 'post'], '/{slug}', [WebController::class, 'detail'])
 ->where('slug', '(?!' . implode('|', array_merge([admin_path(),'search','tags','install'],$modules->pluck('name')
 ->toArray())) . ')[a-zA-Z0-9-_]+')->middleware(['public']);
 
 Route::match(['get', 'post'],'/', [WebController::class, 'home'])->name('home')->middleware(['public']);
+
+
 Route::match(['get', 'post'],'install', [SetupController::class, 'index'])->name('install');
 Route::match(['get', 'post'],'install/initializing', [SetupController::class, 'initializing'])->name('initializing');
 
