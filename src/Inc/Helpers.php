@@ -1230,6 +1230,12 @@ if (!function_exists('db_connected')) {
         }
     }
 }
+if (!function_exists('isHomePage')) {
+    function isHomePage()
+    {
+      return request()->is('/') ? true : false;
+    }
+}
 if (!function_exists('getTgl')) {
     function getTgl($tanggal, $type)
     {
