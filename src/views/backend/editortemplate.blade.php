@@ -26,6 +26,10 @@
     $data = getDirectoryContents(null, $treeData);
     renderTemplateFile($treeData);
     @endphp
+<ul style="padding:0;list-style: none;margin:0">
+    <li> <i class="fa fa-file-code"></i> <a href="{{ url()->current().'?edit=/styles.css' }}">  styles.css</a></li>
+    <li> <i class="fa fa-file-code"></i> <a href="{{ url()->current().'?edit=/scripts.js' }}"> scripts.js</a></li>
+</ul>
 </div>
 </div>
 
@@ -44,7 +48,7 @@
     <form action="{{ url()->full() }}" class="editorForm" method="post">
         @csrf
         @if($e = request()->edit )
-    <h6> <i class="fa fa-edit"></i> {{  'Edit : '.$e  }} @if(!str($e)->contains(['modules','home','header','footer']))<i onclick="deleteFile('{{ $e }}')" class="fa fa-trash-o text-danger pointer" title="Delete this file "></i>@endif</h6>
+    <h6> <i class="fa fa-edit"></i> {{  'Edit : '.$e  }} @if(!str($e)->contains(['modules','home','header','footer','styles','scripts']))<i onclick="deleteFile('{{ $e }}')" class="fa fa-trash-o text-danger pointer" title="Delete this file "></i>@endif</h6>
     @else
     <h6> <i class="fa fa-edit"></i> {{  'Edit : /home.blade.php'  }}</h6>
 
@@ -91,7 +95,7 @@
     }
         var editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
             lineNumbers: true,
-            mode: "application/x-httpd-php",
+            mode: "{{ $type }}",
             matchBrackets: true,
             indentUnit: 4,
             indentWithTabs: true,

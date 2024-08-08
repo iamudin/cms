@@ -211,6 +211,26 @@ public function editorTemplate(Request $request){
     }
     $file = $request->edit ?? '/home.blade.php';
 
+    if($file=='/styles.css'){
+        $file = '/styles.css';
+        $path = public_path('template/'.template());
+        if(!file_exists($path.$file)){
+            $myfile = fopen($path.$file, "w") or die("Unable to open file!");
+            fwrite($myfile, 'body,html { }');
+            fclose($myfile);
+        }
+    }elseif($file=='/scripts.js'){
+        $file = '/scripts.js';
+        $path = public_path('template/'.template());
+        if(!file_exists($path.$file)){
+            $myfile = fopen($path.$file, "w") or die("Unable to open file!");
+            fwrite($myfile, '$( document ).ready(function() {
+        console.log( "document loaded" );
+    });');
+            fclose($myfile);
+        }
+    }else{
+    }
     if($request->isMethod('post')){
         switch($request->type){
             case 'create_dir':
@@ -257,10 +277,16 @@ public function editorTemplate(Request $request){
         }
 
     }
-    $src = $file && file_exists($path.$file) && is_file($path.$file) ? (file_get_contents($path.$file) ? file_get_contents($path.$file) : '<h1>Here You Script</h1>') : null;
+    $src = $file && file_exists($path.$file) && is_file($path.$file) ? (file_get_contents($path.$file) ? file_get_contents($path.$file) : 'Here You Script') : null;
     if(!$src){
         return to_route('appearance.editor')->with('danger','Source tidak ditemukan!');
     }
-    return view('cms::backend.editortemplate',['view'=>$src]);
+   $type = match(pathinfo($file,PATHINFO_EXTENSION)){
+    'php' => 'application/x-httpd-php',
+    'css'=> 'text/css',
+    'js'=> 'text/javascript'
+   };
+
+    return view('cms::backend.editortemplate',['view'=>$src,'type'=>$type]);
     }
 }

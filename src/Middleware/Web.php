@@ -41,6 +41,8 @@ class Web
             if(get_option('site_maintenance')=='N'){
                 $content = preg_replace('/\s+/', ' ', $content);
             }
+            $footerCredits = '<footer style="text-align:center;background:#000;padding:10px;color:#ccc" class="'.str()->random(5).'_credit"><small>Build with <span style="color:red">Lara</span><b style="color:#fff">mix<b><sup style="color:#f5f5f4">.id</sup></small></footer>';
+            $content = preg_replace('/<\/body>/', $footerCredits . '</body>', $content);
             $response->setContent($content);
         }
         $this->securityHeaders($response,$request);
@@ -59,7 +61,7 @@ class Web
         $response->headers->set('X-XSS-Protection', '1; mode=block');
 
         // Set Content-Security-Policy Header
-        $response->headers->set('Content-Security-Policy', "'unsafe-eval';");
+        $response->headers->set('Content-Security-Policy', " base-uri 'self'; form-action 'self';");
 
 
     }
